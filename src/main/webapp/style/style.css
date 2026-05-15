@@ -1,0 +1,486 @@
+:root {
+    --color-primary: #640100;
+    --color-secondary: #320000;
+    --color-background: rgb(202, 183, 161);
+}
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: 'Mulish',sans-serif;
+    /*background-color: var(--color-background);*/
+    color: var(--color-secondary);
+    line-height: 1.6;
+}
+#section_slider {
+    height: 700px;
+}
+#section_slider .container {
+    max-width: 100%;
+    padding: 0;
+    margin: 0;
+    height: 100%;
+}
+#section_slider img{
+    width: 100%;
+    height: 700px;
+    display: block;
+    object-fit: cover;
+}
+#section_slider .carousel,
+#section_slider .carousel-inner,
+#section_slider .item {
+    height: 100%;
+}
+#section_slider .carousel{
+    overflow: hidden;
+}
+.carousel-control {
+    width: 60px;
+    height: 60px;
+    top: 50%;
+    transform: translateY(-50%);
+    border: 3px solid rgb(202, 183, 161);
+    border-radius: 50%;
+    background: rgba(0, 0, 0, 0.2);
+    text-align: center;
+    font-size: 28px;
+    opacity: 0.8;
+    transition: 0.3s;
+}
+
+.carousel-control:hover {
+    background: rgba(0, 0, 0, 0.5);
+    opacity: 1;
+}
+
+.carousel-control.left {
+    left: 20px;
+}
+
+.carousel-control.right {
+    right: 20px;
+}
+
+.carousel-inner {
+    display: flex;
+    transition: transform 0.5s ease;
+}
+
+.item {
+    min-width: 100%;
+    position: relative;
+}
+
+#section_slider .item{
+    /*border-radius: 20px;*/
+}
+
+.carousel-control {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    color: var(--color-background);
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: bold;
+    cursor: pointer;
+    text-decoration: none;
+}
+.product-showcase {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+.product-showcase-top {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+.signature-header {
+    text-align: center;
+    padding: 10px 0 10px 0;
+}
+
+.signature-header h1 {
+    font-size: 36px;
+    font-weight: normal;
+    letter-spacing: 5px;
+    margin: 0;
+}
+
+/* Nav Menu */
+.main-nav {
+    text-align: center;
+    padding-bottom: 30px;
+}
+
+.main-nav ul {
+    list-style: none;
+    padding: 10px;
+    margin: 0;
+    display: flex;
+    justify-content: center;
+    gap: 30px; /* Khoảng cách giữa các mục menu */
+}
+
+.main-nav li a {
+    text-decoration: none;
+    color: #333;
+    font-size: 16px;
+    padding: 5px 10px;
+    transition: color 0.3s, border-bottom 0.3s;
+}
+.main-nav li a:not(.active):hover {
+    color: #000;
+    border-bottom: 1px solid #999;
+}
+.main-nav li a.active {
+    font-weight: bold;
+    border-bottom: 2px solid #000;
+}
+.product-gallery {
+    display: flex;
+    justify-content: center;
+    padding: 0 20px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.product-gallery.hidden-gallery {
+    display: none;
+}
+
+.product-gallery.active-gallery {
+    display: flex;
+}
+.product-gallery {
+    display: flex;
+    justify-content: flex-start;
+    padding: 0 20px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.product-card {
+    flex-basis: calc((100% / 5) - 20px + (20px / 5));
+    max-width: 100%;
+    margin-bottom: 20px;
+    text-align: left;
+    text-decoration: none;
+}
+
+.product-image {
+    position: relative;
+    overflow: hidden;
+    line-height: 0;
+    /*border-radius: 5px;*/
+}
+
+.product-image img {
+    width: 100%;
+    height: auto;
+    display: block;
+    transition: transform 0.3s ease;
+}
+.product-card:hover .product-image img {
+    transform: scale(0.95);
+}
+
+.product-info {
+    padding: 10px 0;
+}
+
+.product-name {
+    font-size: 14px;
+    margin: 0;
+    line-height: 1.4;
+    color: #320000;
+    min-height: 36px;
+}
+
+.product-price {
+    display: flex;
+    align-items: center;
+    margin-top: 5px;
+}
+
+.old-price {
+    font-size: 14px;
+    color: #999;
+    text-decoration: line-through;
+    margin-right: 5px;
+}
+
+.current-price {
+    font-size: 16px;
+    font-weight: bold;
+    color: #640100;
+    margin-right: 10px;
+}
+
+.discount-tag {
+    background-color: #b90000;
+    color: white;
+    font-size: 12px;
+    padding: 2px 5px;
+    border-radius: 2px;
+    font-weight: bold;
+}
+
+@media (max-width: 1400px) {
+    .product-card {
+        width: calc(25% - 15px);
+    }
+}
+
+@media (max-width: 1024px) {
+    .product-card {
+        width: calc(33.333% - 14px);
+    }
+}
+
+@media (max-width: 768px) {
+    .product-card {
+        width: calc(50% - 10px);
+    }
+    .main-nav ul {
+        gap: 15px;
+    }
+}
+
+@media (max-width: 480px) {
+    .product-card {
+        width: 100%; /* 1 cột */
+    }
+    .signature-header h1 {
+        font-size: 30px;
+    }
+}
+.product-set-vietsacdo{
+    width: 100%;
+    margin:0 auto;
+    max-width: 1400px;
+    box-sizing: border-box;
+}
+.product-set-vietsacdo .product-showcase {
+    display: flex;
+    justify-content: center;
+    gap: 30px;
+}
+.product-set-vietsacdo .product-showcase .product-card{
+    flex: 1 1 30%;
+    max-width: 400px;
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.product-set-vietsacdo .info{
+    text-decoration: none;
+    color: #320000;
+    font-weight: bold;
+}
+.product-set-vietsacdo .product-name{
+    font-size: 20px;
+    margin: 0;
+    line-height: 1.4;
+    color: #320000;
+    min-height: 36px;
+}
+
+.sumire-review-section {
+    max-width: 1400px;
+    margin: 40px auto; /* Căn giữa và tạo khoảng đệm */
+    padding: 20px;
+}
+
+.instagram-follow {
+    text-align: center;
+    margin-bottom: 50px;
+}
+
+.follow-text {
+    font-size: 1.5em;
+    margin-bottom: 25px;
+    color: #333;
+}
+
+.instagram-gallery {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 0 10px;
+}
+
+.gallery-item {
+    position: relative;
+    flex: 1 1 18%;
+    max-width: 280px;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    border-radius: 5px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.insta-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.4);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    opacity: 0;
+    transition: opacity 0.3s ease;
+    text-decoration: none;
+}
+.insta-overlay i {
+    font-size: 2.5em;
+    color: white;
+
+    width: 50px;
+    height: 50px;
+    background-color: white;
+    color: black;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: transform 0.3s ease;
+}
+
+.gallery-item:hover .insta-overlay {
+    opacity: 1;
+}
+
+.gallery-item:hover img {
+    transform: scale(1.05);
+    transition: transform 0.3s ease;
+}
+
+.gallery-item img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.thank-you-message {
+    text-align: center;
+    margin: 60px 0 40px 0;
+}
+
+.thank-you-message p {
+    font-size: 1.4em;
+    font-weight: 500;
+    color: #333;
+}
+
+.customer-reviews {
+    display: flex;
+    justify-content: center;
+    gap: 25px;
+    padding: 0 10px;
+}
+
+.review-card {
+    flex: 1 1 30%; /* Chia thành 3 cột */
+    max-width: 400px;
+    display: flex;
+    padding: 15px;
+    border: 1px solid #eee;
+    background-color: #fff;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    border-radius: 5px;
+    min-height: 200px; /* Đảm bảo chiều cao tối thiểu */
+}
+
+.review-text-content {
+    flex-grow: 1;
+    padding-right: 15px;
+}
+
+.reviewer-name {
+    font-weight: bold;
+    font-size: 1.1em;
+    margin-bottom: 5px;
+}
+
+.stars {
+    color: gold; /* Màu vàng cho sao */
+    font-size: 1em;
+    margin-bottom: 10px;
+}
+
+.review-comment {
+    font-size: 0.95em;
+    color: #555;
+    line-height: 1.4;
+}
+
+.reviewer-image {
+    width: 100px; /* Chiều rộng cố định cho ảnh */
+    height: 100%;
+    align-self: flex-start; /* Giữ ảnh ở trên cùng */
+}
+
+.reviewer-image img {
+    object-fit: cover;
+    display: block;
+    transition: transform 0.3s ease;
+}
+
+@media (max-width: 1024px) {
+    .instagram-gallery {
+        flex-wrap: wrap;
+        max-width: 900px;
+        margin: 0 auto;
+    }
+    .gallery-item {
+        flex: 1 1 30%;
+    }
+
+    .customer-reviews {
+        flex-direction: column;
+        align-items: center;
+    }
+    .review-card {
+        max-width: 90%;
+        width: 100%;
+        margin-bottom: 20px;
+        min-height: auto;
+    }
+}
+
+@media (max-width: 600px) {
+    .gallery-item {
+        flex: 1 1 45%;
+    }
+    .review-card {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+    }
+    .review-text-content {
+        padding: 10px 0;
+    }
+    .reviewer-image {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        overflow: hidden;
+        margin-top: 10px;
+    }
+}
+

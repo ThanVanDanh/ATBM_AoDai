@@ -1,0 +1,399 @@
+.promotion-editor-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+}
+
+.promotion-editor-header h2 {
+    margin: 0;
+    font-size: 24px;
+    color: #333;
+}
+
+.promotion-editor-container {
+    display: flex;
+    gap: 24px;
+}
+
+.editor-main {
+    flex: 3;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.editor-sidebar {
+    flex: 1;
+}
+
+.form-group {
+    margin-bottom: 24px;
+}
+
+.form-group label {
+    display: block;
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 10px;
+    color: #333;
+}
+
+.form-group input[type="text"] {
+    width: 100%;
+    padding: 12px;
+    font-size: 16px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+/* Cột phụ (Giữ nguyên) */
+.publish-card {
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    margin-bottom: 24px;
+}
+
+.publish-card h3 {
+    font-size: 16px;
+    font-weight: 600;
+    margin-top: 0;
+    margin-bottom: 20px;
+    border-bottom: 1px solid #eee;
+    padding-bottom: 15px;
+}
+
+/* CSS Upload ảnh (Đã tút) */
+.image-upload-box {
+    border: 2px dashed #640100;
+    border-radius: 8px;
+    padding: 30px 20px;
+    text-align: center;
+    background-color: #f8faff;
+    cursor: pointer;
+    transition: background-color 0.2s, border-color 0.2s;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 120px;
+}
+
+.image-upload-box:hover {
+    background-color: #f1f6ff;
+    border-color: #640100;
+}
+
+.image-upload-box i {
+    font-size: 48px;
+    color: #640100;
+    margin-bottom: 10px;
+    line-height: 1;
+}
+
+.image-upload-box p {
+    margin: 0;
+    color: #555;
+    font-size: 15px;
+    font-weight: 500;
+}
+
+/* CSS CKEditor 4 (Đã tút) */
+.cke_chrome {
+    border-radius: 5px !important;
+    border: 1px solid #ced4da !important;
+    box-shadow: none !important;
+    margin-top: 5px;
+}
+
+.cke_top {
+    background: #f8f9fa !important;
+    border-bottom: 1px solid #dee2e6 !important;
+    border-radius: 5px 5px 0 0 !important;
+    padding: 8px 10px !important;
+}
+
+.cke_button_icon {
+    opacity: 0.8;
+    transition: opacity 0.2s;
+}
+
+.cke_button_icon:hover {
+    opacity: 1;
+}
+
+.cke_contents {
+    background-color: #ffffff !important;
+    padding: 15px !important;
+    line-height: 1.6;
+    font-size: 15px;
+    color: #333;
+}
+
+/* CSS chung (Giữ nguyên) */
+#promo-image-input {
+    display: none;
+}
+
+#image-preview-container {
+    margin-top: 15px;
+    text-align: center;
+}
+
+#image-preview {
+    max-width: 100%;
+    height: auto;
+    border-radius: 8px;
+    border: 1px solid #eee;
+    display: none;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.publish-actions {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+}
+
+.btn {
+    padding: 10px 15px;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    transition: background-color 0.2s, opacity 0.2s;
+}
+
+.btn-publish {
+    background-color: #640100;
+    color: white;
+    flex-grow: 1;
+}
+
+.btn-publish:hover {
+    background-color: #640100;
+}
+
+.btn-draft {
+    background-color: #6c757d;
+    color: white;
+    flex-grow: 1;
+}
+
+.btn-draft:hover {
+    background-color: #5a6268;
+}
+
+
+/* ============================================== */
+/* CSS MỚI THÊM: CHO CARD LỊCH HOẠT ĐỘNG */
+/* ============================================== */
+.form-group-sidebar {
+    margin-bottom: 15px;
+}
+
+/* CSS cho label trong card (cột phụ) */
+.form-group-sidebar label {
+    display: block;
+    font-size: 14px;
+    font-weight: 500;
+    margin-bottom: 6px;
+    color: #495057;
+}
+
+/* CSS cho input lịch (ngày giờ) */
+.form-group-sidebar input[type="datetime-local"] {
+    width: 100%;
+    padding: 8px 10px;
+    font-size: 14px;
+    border: 1px solid #ced4da;
+    border-radius: 5px;
+    box-sizing: border-box; /* Quan trọng */
+    font-family: inherit; /* Giữ font chữ thống nhất */
+    color: #495057;
+    background-color: #fff; /* Đảm bảo nền trắng */
+}
+
+/* Thêm icon vào tiêu đề card cho chuyên nghiệp */
+.publish-card h3 i.fas {
+    margin-right: 8px;
+    color: #640100; /* Màu xanh đồng bộ */
+    width: 20px; /* Cho icon căn đều */
+    text-align: center;
+}
+
+
+/* CSS Danh sách khuyến mãi (Giữ nguyên) */
+.promotion-list-section {
+    margin-top: 30px;
+    background-color: #ffffff;
+    border-radius: 8px;
+    padding: 24px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+}
+
+.promotion-list-section h2 {
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-size: 20px;
+    color: #333;
+}
+
+.promo-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.promo-table th,
+.promo-table td {
+    padding: 16px 12px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6;
+    vertical-align: middle;
+    color: #495057;
+}
+
+.promo-table th {
+    background-color: #f8f9fa;
+    font-weight: 600;
+    color: #212529;
+    font-size: 14px;
+}
+
+.status {
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: capitalize;
+    display: inline-block;
+}
+
+.status.active {
+    background-color: #e6f7ec;
+    color: #28a745;
+}
+
+.status.expired {
+    background-color: #f8f9fa;
+    color: #6c757d;
+}
+
+.status.draft {
+    background-color: #e6f2ff;
+    color: #640100;
+}
+
+/* CẬP NHẬT: CSS cho cột thời gian hoạt động */
+.promo-table td.period {
+    font-size: 14px;
+    color: #333;
+    line-height: 1.5;
+}
+
+.action-icons a {
+    color: #6c757d;
+    margin: 0 8px;
+    font-size: 16px;
+    text-decoration: none;
+    transition: color 0.2s;
+}
+
+.action-icons a:hover {
+    color: #007bff;
+}
+
+.action-icons a.delete:hover {
+    color: #640100;
+}
+
+
+.tab-navigation {
+    display: flex;
+    gap: 10px;
+    padding: 0 20px;
+}
+
+.tab-button {
+    padding: 12px 24px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    font-size: 15px;
+    font-weight: 500;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.tab-button:hover {
+    color: var(--brand, #640100);
+    background: #f8f9fa;
+}
+
+.tab-button.active {
+    color: var(--brand, #640100);
+    border-bottom-color: var(--brand, #640100);
+}
+
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+#voucher-select {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#discount-type {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#discount-value {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#min-order-amount {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
+#max-usage {
+    width: 100%;
+    padding: 10px;
+    font-size: 14px;
+    border: 1px solid #e0e0e0;
+    border-radius: 5px;
+    box-sizing: border-box;
+}
+
