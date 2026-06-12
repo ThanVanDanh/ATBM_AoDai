@@ -15,4 +15,7 @@ public class KeyService {
         }
         return keyDao.registerNewKey(userId, publicKey.trim());
     }
+    public boolean revokeUserKey(int userId) {
+        return keyDao.revokeKey(userId);
+    }
 }
