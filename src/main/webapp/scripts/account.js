@@ -3,21 +3,40 @@ document.addEventListener('DOMContentLoaded', function () {
     const address = document.getElementById('nav-addresses');
     const contentInfo = document.getElementById('account-details');
     const contentAddress = document.getElementById('account-addresses');
+    const tabKey = document.getElementById('nav-key');
+    const contentKey = document.getElementById('account-key');
 
     if (accountInfo && address && contentInfo && contentAddress) {
         accountInfo.addEventListener('click', e => {
             contentInfo.style.display = 'block';
             contentAddress.style.display = 'none';
+            if (contentKey) contentKey.style.display = 'none';
             accountInfo.classList.add('active');
             address.classList.remove('active');
+            if (tabKey) tabKey.classList.remove('active');
         });
 
         address.addEventListener('click', e => {
             contentInfo.style.display = 'none';
             contentAddress.style.display = 'block';
+            if (contentKey) contentKey.style.display = 'none';
             accountInfo.classList.remove('active');
             address.classList.add('active');
+            if (tabKey) tabKey.classList.remove('active');
         });
+
+        if (tabKey && contentKey) {
+            tabKey.addEventListener('click', e => {
+                e.preventDefault();
+                contentInfo.style.display = 'none';
+                contentAddress.style.display = 'none';
+                contentKey.style.display = 'block';
+
+                accountInfo.classList.remove('active');
+                address.classList.remove('active');
+                tabKey.classList.add('active');
+            });
+        }
     }
 
     const addModal = document.getElementById('add-address-modal');
@@ -200,7 +219,7 @@ window.viewOrderDetails = function (orderId) {
                 document.getElementById('modal-order-status').textContent = order.orderStatus;
                 document.getElementById('modal-order-address').textContent = order.shippingAddress;
 
-                const fmt = new Intl.NumberFormat('vi-VN', { style: 'currency', currency: 'VND' });
+                const fmt = new Intl.NumberFormat('vi-VN', {style: 'currency', currency: 'VND'});
 
                 document.getElementById('modal-subtotal').textContent = fmt.format(order.subtotalAmount);
                 document.getElementById('modal-shipping').textContent = fmt.format(order.shippingFee);
@@ -248,5 +267,37 @@ window.viewOrderDetails = function (orderId) {
         if (event.target == modal) {
             modal.style.display = 'none';
         }
+    }
+}
+window.openRevokeKeyModal = function () {
+    const modal = document.getElementById('revoke-key-modal');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closeRevokeKeyModal = function () {
+    const modal = document.getElementById('revoke-key-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.confirmRevokeKey = async function () {
+    try {
+        const response = await fetch("revoke-key", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            alert("Đã báo mất và đóng băng khóa thành công!");
+            window.closeRevokeKeyModal();
+            location.reload();
+        } else {
+            alert("Lỗi: " + data.message);
+        }
+    } catch (error) {
+        console.error("Lỗi:", error);
+        alert("Có lỗi xảy ra khi kết nối máy chủ.");
     }
 };

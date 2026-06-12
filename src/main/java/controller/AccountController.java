@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import java.io.IOException;
+import java.util.Map;
 
 @WebServlet("/account")
 public class AccountController extends HttpServlet {
@@ -35,7 +36,14 @@ public class AccountController extends HttpServlet {
         dao.OrderDao orderDao = new dao.OrderDao();
         java.util.List<model.order.Order> orders = orderDao.getOrdersByUserId(user.getId());
         req.setAttribute("orders", orders);
+        dao.KeyDao keyDao = new dao.KeyDao();
+        Map<String, Object> activeKey = keyDao.getActiveKeyInfo(user.getId());
 
+        if (activeKey != null) {
+            req.setAttribute("currentKeyId", activeKey.get("id"));
+            req.setAttribute("currentPublicKey", activeKey.get("public_key"));
+            req.setAttribute("currentKeyCreatedAt", activeKey.get("created_at"));
+        }
         req.getRequestDispatcher("account.jsp").forward(req, resp);
     }
 }
