@@ -16,13 +16,14 @@ public class OrderDao extends BaseDao {
 
     public int createOrder(Order order, List<CartItem> cartItems) {
         return jdbi.inTransaction(handle -> {
-            String orderSql = "INSERT INTO Orders (user_id, order_code, customer_fullname, customer_email, " +
+            String orderSql = "INSERT INTO Orders (user_id, key_id, order_code, customer_fullname, customer_email, " +
                     "customer_phone, shipping_address, customer_note, subtotal_amount, shipping_fee, " +
-                    "discount_amount, total_amount, voucher_id, order_status, payment_method, payment_status, created_at) "
-                    +
-                    "VALUES (:userId, :orderCode, :customerFullname, :customerEmail, " +
+                    "discount_amount, total_amount, voucher_id, order_status, payment_method, payment_status, " +
+                    "order_hash, signed_order_data, order_signature, signature_status, signed_at, created_at) " +
+                    "VALUES (:userId, :keyId, :orderCode, :customerFullname, :customerEmail, " +
                     ":customerPhone, :shippingAddress, :customerNote, :subtotalAmount, :shippingFee, " +
-                    ":discountAmount, :totalAmount, :voucherId, :orderStatus, :paymentMethod, :paymentStatus, NOW())";
+                    ":discountAmount, :totalAmount, :voucherId, :orderStatus, :paymentMethod, :paymentStatus, " +
+                    ":orderHash, :signedOrderData, :orderSignature, :signatureStatus, :signedAt, NOW())";
 
             int orderId = handle.createUpdate(orderSql)
                     .bindBean(order)
