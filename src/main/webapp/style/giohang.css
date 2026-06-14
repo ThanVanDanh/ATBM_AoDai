@@ -1,0 +1,202 @@
+:root {
+    --color-primary: #640100;
+    --color-secondary: #320000;
+    --color-bg: #fdfaf7;
+    --color-background: #ffffff;
+}
+p{
+    margin-bottom: 10px;
+    font-size: 12px;
+}
+section.shopping-cart {
+    max-width: 1200px;
+    width: 100%;
+}
+.header-cart-sp{
+    text-align: left;
+}
+.header-cart-sp h1{
+    font-size: 32px;
+    font-weight: normal;
+    letter-spacing: 2px;
+    margin-top: 20px;
+    margin-bottom: 10px;
+    color: var(--color-secondary)
+}
+.upsell-card-sp {
+    border-radius: 8px;
+    position: relative;
+}
+.upsell-card-sp .progress-bar-sp {
+    display: flex;
+    align-items: center;
+    border-radius: 5px;
+    gap: 10px;
+    overflow: hidden;
+}
+.upsell-card-sp .progress-sp {
+    height: 10px;
+    border-radius: 5px;
+    transition: width 0.6s ease;
+}
+.upsell-card-sp .percent-sp {
+    font-weight: bold;
+}
+.content-sp{
+    display: flex;
+    justify-content: space-between;
+    flex-direction: row;
+    align-items: stretch;
+}
+.cart-content-sp {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 10px;
+    margin-right: 30px;
+}
+.cart-items-list-sp{
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.cart-items-list-sp li {
+    display: flex;
+    align-items: flex-start;
+    padding-bottom: 5px;
+    margin-bottom: 5px;
+    border-bottom: 1px solid #666666;
+}
+.cart-items-list-sp li img {
+    width: 45px;
+    height: auto;
+    border-radius: 4px;
+    margin-right: 15px;
+    padding-bottom: 5px;
+    padding-top: 5px;
+}
+.cart-item-sp {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 15px 0;
+    border-bottom: 1px solid #ddd;
+}
+.item-info-sp{
+    display: flex;
+    flex-direction: column;
+}
+.remove-item {
+    top: 5px;
+    right: 10px;
+    border: none;
+    color: #999;
+    font-size: 14px;
+    transition: 0.2s;
+}
+.remove-item:hover {
+    color: var(--color-primary);
+}
+.box-quantity-sp{
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin-left: auto;
+}
+.cart-items-list-sp input{
+    max-width: 25px;
+    text-align: center;
+}
+.item-info-sp .item-name-sp {
+    color: var(--color-secondary);
+    font-weight: 600;
+    text-decoration: none;
+}
+.item-info-sp .item-meta-sp {
+    font-size: 14px;
+    color: #555;
+}
+.item-info-sp .item-price-sp {
+    font-weight: bold;
+    color: var(--color-primary);
+}
+.box-quantity-sp button {
+    background-color: var(--color-primary);
+    color: #fff;
+    border: none;
+    width: 25px;
+    height: 25px;
+    border-radius: 50%;
+    cursor: pointer;
+    transition: 0.2s;
+}
+.box-quantity-sp button:hover {
+    background-color: var(--color-secondary);
+}
+.box-quantity-sp input {
+    width: 40px;
+    text-align: center;
+    border: 1px solid var(--color-primary);
+    background: none;
+    outline: none;
+    border-radius: 4px;
+    padding: 4px;
+}
+.cart-note-sp{
+    margin-top: 25px;
+}
+.cart-note-sp label{
+    font-size: 14px;
+    font-weight: normal;
+    margin-bottom: 8px;
+    color: var(--color-secondary);
+}
+.cart-note-sp textarea {
+    width: 100%;
+    background: none;
+    border-radius: 6px;
+    border: 1px solid var(--color-secondary);
+    resize: vertical;
+    outline: none;
+    padding: 5px;
+}
+.cart-price-sp {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    flex: 0 0 320px;
+    height: auto;
+    background-color: #f7f7f7;
+    padding: 25px 30px;
+}
+.cart-price-sp .total-sp{
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 20px;
+}
+.cart-price-sp .total-sp h3 {
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+.cart-price-sp span {
+    font-size: 18px;
+    font-weight: bold;
+}
+.cart-price-sp button {
+    background-color: var(--color-primary);
+    color: #ffffff;
+    border: none;
+    padding: 12px 30px;
+    cursor: pointer;
+    font-size: 16px;
+    transition: 0.2s;
+}
+.cart-price-sp button a{
+    text-decoration: none;
+    color: #FFFFFF;
+}
+.cart-price-sp button:hover {
+    background-color: var(--color-secondary);
+    transform: scale(1.02);
+}

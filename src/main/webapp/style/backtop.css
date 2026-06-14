@@ -1,0 +1,35 @@
+#backToTopBtn {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+
+    width: 40px;
+    height: 40px;
+    background-color: #000;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    font-size: 15px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+    opacity: 0.9;
+
+    display: none;
+
+    transition: opacity 0.3s, background-color 0.3s;
+    z-index: 9999;
+}
+
+#backToTopBtn:hover {
+    opacity: 1;
+    background-color: #333;
+}
+
+.show-btn {
+    display: flex !important;
+}
