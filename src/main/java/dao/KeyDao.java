@@ -26,4 +26,12 @@ public class KeyDao extends BaseDao {
                         .orElse(null)
         );
     }
+
+    public boolean revokeKey(int userId) {
+        return get().withHandle(handle ->
+                handle.createUpdate("UPDATE user_keys SET status = 'revoked', revoked_at = NOW() WHERE user_id = :userId AND status = 'active'")
+                        .bind("userId", userId)
+                        .execute() > 0
+        );
+    }
 }

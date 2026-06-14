@@ -269,3 +269,35 @@ window.viewOrderDetails = function (orderId) {
         }
     }
 }
+window.openRevokeKeyModal = function () {
+    const modal = document.getElementById('revoke-key-modal');
+    if (modal) modal.style.display = 'flex';
+};
+
+window.closeRevokeKeyModal = function () {
+    const modal = document.getElementById('revoke-key-modal');
+    if (modal) modal.style.display = 'none';
+};
+
+window.confirmRevokeKey = async function () {
+    try {
+        const response = await fetch("revoke-key", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+            alert("Đã báo mất và đóng băng khóa thành công!");
+            window.closeRevokeKeyModal();
+            location.reload();
+        } else {
+            alert("Lỗi: " + data.message);
+        }
+    } catch (error) {
+        console.error("Lỗi:", error);
+        alert("Có lỗi xảy ra khi kết nối máy chủ.");
+    }
+};
