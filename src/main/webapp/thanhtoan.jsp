@@ -17,6 +17,7 @@
                 <link rel="stylesheet" href="style/breadcrumb.css">
                 <script src="scripts/home.js"></script>
                 <script src="scripts/backtop.js"></script>
+                <script src="scripts/sign-order.js"></script>
                 <link rel="stylesheet" href="style/backtop.css">
                 <link rel="stylesheet" href="https://unpkg.com/swiper/swiper-bundle.min.css">
                 <script src="https://unpkg.com/swiper/swiper-bundle.min.js"></script>
@@ -306,6 +307,50 @@
                     </main>
                 </div>
                 <jsp:include page="footer.jsp" />
+
+                <!-- modal ký đơn hàng -->
+                <div id="sign-order-overlay">
+                    <div class="sign-modal">
+                        <div class="sign-modal-header">
+                            <h3>Xác nhận đơn hàng bằng chữ ký điện tử</h3>
+                            <button class="sign-modal-close" onclick="closeSignModal()">&#x2715;</button>
+                        </div>
+
+                        <div class="sign-modal-body">
+                            <div>
+                                <p class="sign-modal-section-label">Thông tin đơn hàng (dùng để ký)</p>
+                                <pre id="sign-modal-canonical" class="sign-modal-canonical"></pre>
+                            </div>
+
+                            <div>
+                                <p class="sign-modal-section-label">Mã hash SHA-256</p>
+                                <div class="sign-modal-hash-box">
+                                    <code id="sign-modal-hash"></code>
+                                    <div class="sign-modal-hash-actions">
+                                        <button id="btn-copy-hash" class="btn-hash-action" onclick="copyOrderHash()">Sao chép hash</button>
+                                        <button class="btn-hash-action" onclick="downloadHashFile()">Tải file .txt</button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div>
+                                <p class="sign-modal-section-label">Dán chữ ký (Base64) từ Java Swing Tool</p>
+                                <textarea
+                                    id="sign-modal-signature"
+                                    class="sign-modal-textarea"
+                                    placeholder="Dán chuỗi chữ ký Base64 vào đây..."
+                                ></textarea>
+                                <p id="sign-modal-error" class="sign-modal-error"></p>
+                            </div>
+                        </div>
+
+                        <div class="sign-modal-footer">
+                            <button class="btn-sign-cancel" onclick="closeSignModal()">Hủy</button>
+                            <button id="btn-submit-signature" class="btn-sign-submit" onclick="submitSignedOrder()">Xác nhận đặt hàng</button>
+                        </div>
+                    </div>
+                </div>
+
                 <script>
                     function applyPromo(code) {
                         document.getElementById('promoInput').value = code;
@@ -345,53 +390,47 @@
                     function placeOrder() {
                         const form = document.getElementById('checkoutForm');
                         const formData = new URLSearchParams(new FormData(form));
-
                         formData.append('ajax', 'true');
 
                         Swal.fire({
                             title: 'Đang xử lý...',
                             text: 'Vui lòng chờ trong giây lát',
                             allowOutsideClick: false,
-                            didOpen: () => {
-                                Swal.showLoading();
-                            }
+                            didOpen: () => Swal.showLoading()
                         });
 
                         fetch('checkout', {
                             method: 'POST',
-                            headers: {
-                                'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8'
-                            },
+                            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
                             body: formData
                         })
-                            .then(response => response.json())
-                            .then(data => {
-                                if (data.success) {
-                                    Swal.fire({
-                                        icon: 'success',
-                                        title: 'Thanh toán thành công!',
-                                        text: 'Cảm ơn bạn đã mua hàng. Chuyển hướng đến trang tài khoản...',
-                                        timer: 2000,
-                                        showConfirmButton: false
-                                    }).then(() => {
-                                        window.location.href = '${pageContext.request.contextPath}/account';
-                                    });
-                                } else {
-                                    Swal.fire({
-                                        icon: 'error',
-                                        title: 'Thanh toán thất bại',
-                                        text: data.message || 'Có lỗi xảy ra, vui lòng thử lại.'
-                                    });
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
+                        .then(resp => resp.json())
+                        .then(data => {
+                            Swal.close();
+                            if (data.requireSignature) {
+                                // server trả hash và canonical data để user ký
+                                openSignModal(data.orderHash, data.canonicalData);
+                            } else if (data.success) {
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: 'Thanh toán thành công!',
+                                    text: 'Cảm ơn bạn đã mua hàng.',
+                                    timer: 2000,
+                                    showConfirmButton: false
+                                }).then(() => {
+                                    window.location.href = '${pageContext.request.contextPath}/account';
+                                });
+                            } else {
                                 Swal.fire({
                                     icon: 'error',
-                                    title: 'Lỗi',
-                                    text: 'Không thể kết nối đến máy chủ.'
+                                    title: 'Thất bại',
+                                    text: data.message || 'Có lỗi xảy ra, vui lòng thử lại.'
                                 });
-                            });
+                            }
+                        })
+                        .catch(() => {
+                            Swal.fire({ icon: 'error', title: 'Lỗi', text: 'Không thể kết nối đến máy chủ.' });
+                        });
                     }
 
                     const popupOverlay = document.getElementById("popupOverlay");
