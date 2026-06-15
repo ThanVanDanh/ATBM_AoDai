@@ -1,6 +1,7 @@
 package controller;
 
 import dao.AddressDao;
+import dao.KeyDao;
 import jakarta.servlet.*;
 import jakarta.servlet.http.*;
 import jakarta.servlet.annotation.*;
@@ -9,6 +10,8 @@ import model.cart.CartItem;
 import model.order.Order;
 import model.user.Address;
 import model.user.User;
+import util.OrderSignatureDataBuilder;
+import util.SignatureUtil;
 
 import java.io.IOException;
 import java.util.List;
@@ -18,6 +21,7 @@ public class CheckoutController extends HttpServlet {
     private AddressDao addressDao;
     private dao.VoucherDao voucherDao;
     private dao.OrderDao orderDao;
+    private KeyDao keyDao;
 
     @Override
     public void init() throws ServletException {
@@ -26,6 +30,7 @@ public class CheckoutController extends HttpServlet {
             this.addressDao = new AddressDao();
             this.voucherDao = new dao.VoucherDao();
             this.orderDao = new dao.OrderDao();
+            this.keyDao = new KeyDao();
         } catch (Exception ex) {
             throw new ServletException("Failed to initialize CheckoutController: " + ex.getMessage(), ex);
         }
@@ -97,15 +102,27 @@ public class CheckoutController extends HttpServlet {
             return;
         }
 
+        resp.setContentType("application/json;charset=UTF-8");
+
         HttpSession session = req.getSession();
         Cart cart = (Cart) session.getAttribute("cart");
 
         if (cart == null || cart.getTotalQuantity() == 0) {
-            resp.sendRedirect("cart");
+            resp.getWriter().write("{\"success\":false,\"message\":\"Giỏ hàng trống.\"}");
             return;
         }
 
         User user = (User) session.getAttribute("account");
+        if (user == null) {
+            resp.getWriter().write("{\"success\":false,\"message\":\"Vui lòng đăng nhập để đặt hàng.\"}");
+            return;
+        }
+
+        Integer keyId = keyDao.getActiveKeyId(user.getId());
+        if (keyId == null) {
+            resp.getWriter().write("{\"success\":false,\"message\":\"Bạn chưa có khóa ký. Vui lòng tạo khóa trong trang tài khoản trước khi đặt hàng.\"}");
+            return;
+        }
 
         String fullName = req.getParameter("fullName");
         String phone = req.getParameter("phone");
@@ -118,9 +135,7 @@ public class CheckoutController extends HttpServlet {
         String shippingAddress = (address != null ? address : "") + ", " + (city != null ? city : "");
 
         Order order = new Order();
-        if (user != null) {
-            order.setUserId(user.getId());
-        }
+        order.setUserId(user.getId());
         order.setOrderCode("ORD" + System.currentTimeMillis());
         order.setCustomerFullname(fullName);
         order.setCustomerPhone(phone);
@@ -157,36 +172,31 @@ public class CheckoutController extends HttpServlet {
         order.setVoucherId(voucherId);
         order.setOrderStatus("chờ xử lý");
         order.setPaymentStatus("chưa thanh toán");
+        order.setSignatureStatus("unsigned");
+
+        List<CartItem> items = cart.getItems();
 
         try {
-            int orderId = orderDao.createOrder(order, cart.getItems());
+            String canonicalData = OrderSignatureDataBuilder.build(order, items);
+            String orderHash = SignatureUtil.sha256Hex(canonicalData);
 
-            if (voucherId != null) {
-                voucherDao.incrementUsage(voucherId);
-            }
+            // lưu tạm vào session, chưa insert DB — chờ user ký xong mới lưu
+            session.setAttribute("pendingOrder", order);
+            session.setAttribute("pendingItems", items);
+            session.setAttribute("pendingOrderHash", orderHash);
+            session.setAttribute("pendingCanonicalData", canonicalData);
+            session.setAttribute("pendingKeyId", keyId);
 
-            session.removeAttribute("cart");
-            session.removeAttribute("appliedVoucher");
-            session.removeAttribute("voucherError");
-
-            if ("true".equals(req.getParameter("ajax"))) {
-                resp.setContentType("application/json");
-                resp.getWriter().write("{\"success\": true}");
-            } else {
-                resp.sendRedirect(req.getContextPath() + "/account");
-            }
-
+            String safeCanonical = canonicalData.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
+            resp.getWriter().write(
+                "{\"requireSignature\":true," +
+                "\"orderHash\":\"" + orderHash + "\"," +
+                "\"canonicalData\":\"" + safeCanonical + "\"}"
+            );
         } catch (Exception e) {
             e.printStackTrace();
-            if ("true".equals(req.getParameter("ajax"))) {
-                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-                resp.setContentType("application/json");
-                resp.getWriter()
-                        .write("{\"success\": false, \"message\": \"Đặt hàng thất bại: " + e.getMessage() + "\"}");
-            } else {
-                req.setAttribute("errorMessage", "Đặt hàng thất bại: " + e.getMessage());
-                req.getRequestDispatcher("/thanhtoan.jsp").forward(req, resp);
-            }
+            resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+            resp.getWriter().write("{\"success\":false,\"message\":\"Lỗi xử lý đơn hàng: " + e.getMessage() + "\"}");
         }
     }
 
