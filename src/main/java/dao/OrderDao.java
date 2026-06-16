@@ -89,6 +89,17 @@ public class OrderDao extends BaseDao {
                         .execute() > 0);
     }
 
+    public boolean updateOrderSignature(int orderId, String signature, String orderStatus) {
+        return jdbi.withHandle(handle -> handle.createUpdate(
+                "UPDATE Orders SET order_signature = :signature, signature_status = 'valid', " +
+                "order_status = :orderStatus, signed_at = NOW(), signature_checked_at = NOW() " +
+                "WHERE id = :orderId AND signature_status = 'unsigned'")
+                .bind("signature", signature)
+                .bind("orderStatus", orderStatus)
+                .bind("orderId", orderId)
+                .execute() > 0);
+    }
+
     public boolean cancelOrderWithReason(int orderId, String status, String cancelReason) {
         return jdbi.withHandle(
                 handle -> handle
