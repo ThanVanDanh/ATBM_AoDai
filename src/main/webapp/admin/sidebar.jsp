@@ -25,7 +25,7 @@
                     <li class="nav-item"><a href="${pageContext.request.contextPath}/admin/promotions.jsp"><i
                                 class="fas fa-tags"></i> Khuyến mãi</a></li>
                     <li class="nav-item">
-                        <a href="${pageContext.request.contextPath}/index.jsp"><i class="fas fa-sign-out-alt"></i> Trở
+                        <a href="${pageContext.request.contextPath}/home"><i class="fas fa-sign-out-alt"></i> Trở
                             về Trang Chủ</a>
                     </li>
                 </ul>

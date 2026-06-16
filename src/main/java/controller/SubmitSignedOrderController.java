@@ -81,7 +81,7 @@ public class SubmitSignedOrderController extends HttpServlet {
                 return;
             }
 
-            boolean updated = orderDao.updateOrderSignature(orderId, signature.trim(), "chờ xử lý");
+            boolean updated = orderDao.updateOrderSignature(orderId, signature.trim(), "Chờ xử lý");
             if (updated) {
                 resp.getWriter().write("{\"success\":true}");
             } else {

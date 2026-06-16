@@ -226,6 +226,18 @@ window.viewOrderDetails = function (orderId) {
                 document.getElementById('modal-discount').textContent = fmt.format(order.discountAmount);
                 document.getElementById('modal-total').textContent = fmt.format(order.totalAmount);
 
+                const cancelBtn = document.getElementById('modal-cancel-btn');
+                const statusStr = order.orderStatus ? order.orderStatus.toLowerCase().trim() : '';
+                if (statusStr === 'chờ xử lý' || statusStr === 'đang xử lý' || statusStr === 'đang chờ xác thực') {
+                    cancelBtn.style.display = 'inline-block';
+                    cancelBtn.onclick = function() {
+                        modal.style.display = 'none';
+                        cancelOrder(order.id);
+                    };
+                } else {
+                    cancelBtn.style.display = 'none';
+                }
+
                 const tbody = document.getElementById('modal-order-items-body');
                 tbody.innerHTML = '';
 
