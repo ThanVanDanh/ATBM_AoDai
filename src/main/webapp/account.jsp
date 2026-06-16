@@ -151,6 +151,7 @@
                             <th>Ngày mua</th>
                             <th>Tổng thanh toán</th>
                             <th>Trạng thái</th>
+                            <th>Chữ ký điện tử</th>
                             <th>Thao tác</th>
                         </tr>
                         </thead>
@@ -189,6 +190,19 @@
                                                     class="status-badge ${statusClass}">${order.orderStatus}</span>
                                         </td>
                                         <td>
+                                            <c:choose>
+                                                <c:when test="${order.signatureStatus == 'valid'}">
+                                                    <span class="status-badge status-completed">Hợp lệ</span>
+                                                </c:when>
+                                                <c:when test="${order.signatureStatus == 'invalid'}">
+                                                    <span class="status-badge status-canceled">Không hợp lệ</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="status-badge status-pending">Chưa ký</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
                                             <c:if
                                                     test="${order.orderStatus.toLowerCase().contains('chờ') or order.orderStatus.toLowerCase().contains('đang xử lý')}">
                                                 <button onclick="cancelOrder(${order.id})"
@@ -205,7 +219,7 @@
                             </c:when>
                             <c:otherwise>
                                 <tr>
-                                    <td colspan="5"
+                                    <td colspan="6"
                                         style="text-align: center; padding: 30px; color: #777;">
                                         Bạn chưa có đơn hàng nào. <a
                                             href="${pageContext.request.contextPath}/home"
