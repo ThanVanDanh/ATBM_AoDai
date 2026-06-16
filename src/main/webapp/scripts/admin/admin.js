@@ -35,13 +35,13 @@ document.addEventListener("DOMContentLoaded", () => {
                                 li.classList.add('order-history-item');
                                 let statusClass = 'status-processing';
                                 let statusText = 'Đang xử lý';
-                                if (o.orderStatus === 'hoàn thành') {
+                                if (o.orderStatus.toLowerCase() === 'hoàn thành') {
                                     statusClass = 'status-complete';
                                     statusText = 'Hoàn thành';
-                                } else if (o.orderStatus === 'đã hủy') {
+                                } else if (o.orderStatus.toLowerCase() === 'đã hủy') {
                                     statusClass = 'status-cancel';
                                     statusText = 'Đã hủy';
-                                } else if (o.orderStatus === 'đang giao') {
+                                } else if (o.orderStatus.toLowerCase() === 'đang giao') {
                                     statusClass = 'status-shipping';
                                     statusText = 'Đang giao';
                                 }
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
                                         </div>
                                 `;
 
-                                if (o.orderStatus === 'đã hủy' && o.cancelReason) {
+                                if (o.orderStatus.toLowerCase() === 'đã hủy' && o.cancelReason) {
                                     html += `<span class="cancel-reason">Lý do: ${o.cancelReason}</span>`;
                                 }
 

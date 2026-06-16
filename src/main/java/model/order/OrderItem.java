@@ -60,6 +60,7 @@ public class OrderItem extends AId implements Serializable {
     private String productName;
     private String productImage;
     private String size;
+    private String sku;
 
     public String getProductName() {
         return productName;
@@ -83,5 +84,13 @@ public class OrderItem extends AId implements Serializable {
 
     public void setSize(String size) {
         this.size = size;
+    }
+
+    public String getSku() {
+        return sku;
+    }
+
+    public void setSku(String sku) {
+        this.sku = sku;
     }
 }

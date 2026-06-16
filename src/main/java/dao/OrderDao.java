@@ -116,7 +116,7 @@ public class OrderDao extends BaseDao {
                 "p.name_product AS productName, " +
                 "(SELECT pi.image_url FROM Product_images pi WHERE pi.product_id = p.id AND pi.is_thumbnail = 1 LIMIT 1) AS productImage, "
                 +
-                "pv.size AS size " +
+                "pv.size AS size, pv.sku AS sku " +
                 "FROM Order_items oi " +
                 "LEFT JOIN Product_variants pv ON oi.variant_id = pv.id " +
                 "LEFT JOIN Products p ON pv.product_id = p.id " +

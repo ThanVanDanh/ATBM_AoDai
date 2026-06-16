@@ -176,13 +176,22 @@ public class CheckoutController extends HttpServlet {
 
         List<CartItem> items = cart.getItems();
 
+        //map sang SignableItem để build hash
+        List<OrderSignatureDataBuilder.SignableItem> signableItems = new java.util.ArrayList<>();
+        for (CartItem item : items) {
+            signableItems.add(new OrderSignatureDataBuilder.SignableItem(item.getSku(), item.getQuantity(), item.getPrice()));
+        }
+
+        String orderCode = "ORD" + System.currentTimeMillis();
+        order.setOrderCode(orderCode);
+
         try {
-            String canonicalData = OrderSignatureDataBuilder.build(order, items);
-            String orderHash = SignatureUtil.sha256Hex(canonicalData);
+            String signedOrderData = OrderSignatureDataBuilder.build(order, signableItems);
+            String orderHash = SignatureUtil.sha256Hex(signedOrderData);
 
             order.setKeyId(keyId);
             order.setOrderHash(orderHash);
-            order.setSignedOrderData(canonicalData);
+            order.setSignedOrderData(signedOrderData);
 
             //insert vào db, chờ user ký
             orderDao.createOrder(order, items);
