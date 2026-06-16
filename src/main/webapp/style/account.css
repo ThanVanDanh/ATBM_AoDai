@@ -444,3 +444,16 @@ main {
 .action-view:hover {
     color: #000;
 }
+.key-action-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 15px;
+    align-items: flex-start;
+}
+
+.key-import-group {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
