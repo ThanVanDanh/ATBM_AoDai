@@ -151,6 +151,7 @@
                             <th>Ngày mua</th>
                             <th>Tổng thanh toán</th>
                             <th>Trạng thái</th>
+                            <th>Chữ ký điện tử</th>
                             <th>Thao tác</th>
                         </tr>
                         </thead>
@@ -189,6 +190,19 @@
                                                     class="status-badge ${statusClass}">${order.orderStatus}</span>
                                         </td>
                                         <td>
+                                            <c:choose>
+                                                <c:when test="${order.signatureStatus == 'valid'}">
+                                                    <span class="status-badge status-completed">Hợp lệ</span>
+                                                </c:when>
+                                                <c:when test="${order.signatureStatus == 'invalid'}">
+                                                    <span class="status-badge status-canceled">Không hợp lệ</span>
+                                                </c:when>
+                                                <c:otherwise>
+                                                    <span class="status-badge status-pending">Chưa ký</span>
+                                                </c:otherwise>
+                                            </c:choose>
+                                        </td>
+                                        <td>
                                             <c:if
                                                     test="${order.orderStatus.toLowerCase().contains('chờ') or order.orderStatus.toLowerCase().contains('đang xử lý')}">
                                                 <button onclick="cancelOrder(${order.id})"
@@ -205,7 +219,7 @@
                             </c:when>
                             <c:otherwise>
                                 <tr>
-                                    <td colspan="5"
+                                    <td colspan="6"
                                         style="text-align: center; padding: 30px; color: #777;">
                                         Bạn chưa có đơn hàng nào. <a
                                             href="${pageContext.request.contextPath}/home"
@@ -259,7 +273,25 @@
                 <c:if test="${empty currentPublicKey}">
                     <div class="key-status-alert info">
                         <p><i class="fas fa-info-circle"></i> Tài khoản của bạn chưa cấu hình Chữ ký số. Để đảm bảo đơn hàng không bị thay đổi trái phép, hãy khởi tạo khóa.</p>
-                        <button type="button" class="btn-primary" id="btn-generate-key" onclick="generateAndDownloadKeyPair()">Khởi tạo cặp khóa mới</button>
+
+                        <div class="key-action-container">
+
+                            <button type="button" class="btn-primary" id="btn-generate-key" onclick="generateAndDownloadKeyPair()">
+                                <i class="fas fa-plus"></i> Khởi tạo cặp khóa mới
+                            </button>
+
+                            <div class="key-import-group">
+                                <button type="button" class="btn-secondary" id="btn-import-key" onclick="document.getElementById('import-key-file').click()">
+                                    <i class="fas fa-upload"></i> Tải lên Public Key (.pem)
+                                </button>
+                                <button type="button" class="btn-secondary" id="btn-paste-key" onclick="openImportTextModal()">
+                                    <i class="fas fa-paste"></i> Dán Public Key
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <input type="file" id="import-key-file" accept=".pem,.txt" style="display: none;" onchange="handleImportPublicKey(event)">
                     </div>
                 </c:if>
 
@@ -269,7 +301,6 @@
                             <p><strong>Trạng thái:</strong> <span class="status-badge status-shipping">Đang hoạt động</span></p>
                             <p><strong>Mã khóa (Key ID):</strong> #${currentKeyId}</p>
                             <p><strong>Ngày kích hoạt:</strong> ${currentKeyCreatedAt}</p>
-                                <%--                                            <p><strong>Public Key (Rút gọn):</strong> <code class="text-muted">...${fn:substring(currentPublicKey, 0, 20)}...</code></p>--%>
                         </div>
                         <button type="button" class="action-btn-cancel" style="background-color: #d32f2f; color: white;" onclick="openRevokeKeyModal()">Báo Mất / Hủy Khóa Này</button>
                     </div>
@@ -295,6 +326,23 @@
                         <button type="button" class="btn-danger" onclick="confirmRevokeKey()">Xác nhận hủy khóa</button>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-overlay" id="import-text-modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <button class="modal-close" onclick="closeImportTextModal()">&times;</button>
+            <h4 style="color: #d32f2f; margin-bottom: 15px;">NHẬP PUBLIC KEY THỦ CÔNG</h4>
+            <p style="font-size: 13px; color: #555; margin-bottom: 10px;">
+                Vui lòng dán toàn bộ nội dung của Public Key (bao gồm cả dòng <code>BEGIN</code> và <code>END</code>) vào ô bên dưới:
+            </p>
+            <textarea id="pasted-public-key" spellcheck="false"
+                      style="width: 100%; height: 180px; padding: 10px; border: 1px solid #ddd; border-radius: 5px; font-family: monospace; font-size: 12px; resize: vertical;"
+                      placeholder="-----BEGIN PUBLIC KEY-----&#10;MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8A...&#10;-----END PUBLIC KEY-----"></textarea>
+
+            <div style="display: flex; justify-content: end; gap: 10px; margin-top: 15px;">
+                <button type="button" class="btn-secondary" onclick="closeImportTextModal()">Hủy bỏ</button>
+                <button type="button" class="btn-primary" onclick="submitPastedKey()">Lưu Khóa</button>
             </div>
         </div>
     </div>
