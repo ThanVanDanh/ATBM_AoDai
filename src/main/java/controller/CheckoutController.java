@@ -170,7 +170,7 @@ public class CheckoutController extends HttpServlet {
         order.setDiscountAmount(discountAmount);
         order.setTotalAmount(totalAmount);
         order.setVoucherId(voucherId);
-        order.setOrderStatus("chờ xử lý");
+        order.setOrderStatus("Đang chờ xác thực");
         order.setPaymentStatus("chưa thanh toán");
         order.setSignatureStatus("unsigned");
 
@@ -180,19 +180,22 @@ public class CheckoutController extends HttpServlet {
             String canonicalData = OrderSignatureDataBuilder.build(order, items);
             String orderHash = SignatureUtil.sha256Hex(canonicalData);
 
-            // lưu tạm vào session, chưa insert DB — chờ user ký xong mới lưu
-            session.setAttribute("pendingOrder", order);
-            session.setAttribute("pendingItems", items);
-            session.setAttribute("pendingOrderHash", orderHash);
-            session.setAttribute("pendingCanonicalData", canonicalData);
-            session.setAttribute("pendingKeyId", keyId);
+            order.setKeyId(keyId);
+            order.setOrderHash(orderHash);
+            order.setSignedOrderData(canonicalData);
 
-            String safeCanonical = canonicalData.replace("\\", "\\\\").replace("\"", "\\\"").replace("\n", "\\n");
-            resp.getWriter().write(
-                "{\"requireSignature\":true," +
-                "\"orderHash\":\"" + orderHash + "\"," +
-                "\"canonicalData\":\"" + safeCanonical + "\"}"
-            );
+            //insert vào db, chờ user ký
+            orderDao.createOrder(order, items);
+
+            if (voucherId != null) {
+                voucherDao.incrementUsage(voucherId);
+            }
+
+            session.removeAttribute("cart");
+            session.removeAttribute("appliedVoucher");
+            session.removeAttribute("voucherError");
+
+            resp.getWriter().write("{\"success\":true}");
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);

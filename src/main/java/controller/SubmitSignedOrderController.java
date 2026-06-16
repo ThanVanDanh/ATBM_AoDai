@@ -2,24 +2,19 @@ package controller;
 
 import dao.KeyDao;
 import dao.OrderDao;
-import dao.VoucherDao;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.*;
 import jakarta.servlet.http.*;
-import model.cart.CartItem;
 import model.order.Order;
 import model.user.User;
 import util.SignatureUtil;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
-import java.util.List;
 
-@WebServlet(name = "SubmitSignedOrderController", urlPatterns = { "/submit-signed-order", "/cancel-pending-order" })
+@WebServlet(name = "SubmitSignedOrderController", urlPatterns = {"/submit-signed-order"})
 public class SubmitSignedOrderController extends HttpServlet {
     private OrderDao orderDao;
     private KeyDao keyDao;
-    private VoucherDao voucherDao;
 
     @Override
     public void init() throws ServletException {
@@ -27,7 +22,6 @@ public class SubmitSignedOrderController extends HttpServlet {
         try {
             this.orderDao = new OrderDao();
             this.keyDao = new KeyDao();
-            this.voucherDao = new VoucherDao();
         } catch (Exception ex) {
             throw new ServletException("Failed to initialize SubmitSignedOrderController: " + ex.getMessage(), ex);
         }
@@ -39,17 +33,6 @@ public class SubmitSignedOrderController extends HttpServlet {
         resp.setCharacterEncoding("UTF-8");
         resp.setContentType("application/json;charset=UTF-8");
 
-        if ("/cancel-pending-order".equals(req.getServletPath())) {
-            clearPendingSession(req.getSession());
-            resp.getWriter().write("{\"success\":true}");
-            return;
-        }
-
-        handleSubmit(req, resp);
-    }
-
-    @SuppressWarnings("unchecked")
-    private void handleSubmit(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         HttpSession session = req.getSession();
         User user = (User) session.getAttribute("account");
 
@@ -58,70 +41,59 @@ public class SubmitSignedOrderController extends HttpServlet {
             return;
         }
 
-        Order pendingOrder = (Order) session.getAttribute("pendingOrder");
-        List<CartItem> pendingItems = (List<CartItem>) session.getAttribute("pendingItems");
-        String orderHash = (String) session.getAttribute("pendingOrderHash");
-        String canonicalData = (String) session.getAttribute("pendingCanonicalData");
-        Integer keyId = (Integer) session.getAttribute("pendingKeyId");
+        String orderIdStr = req.getParameter("orderId");
+        String signature = req.getParameter("signature");
 
-        if (pendingOrder == null || pendingItems == null || orderHash == null) {
-            resp.getWriter().write("{\"success\":false,\"message\":\"Không tìm thấy đơn hàng đang chờ. Vui lòng thử lại.\"}");
+        if (orderIdStr == null || orderIdStr.isBlank()) {
+            resp.getWriter().write("{\"success\":false,\"message\":\"Thiếu mã đơn hàng.\"}");
             return;
         }
-
-        String signature = req.getParameter("signature");
-        if (signature == null || signature.trim().isEmpty()) {
+        if (signature == null || signature.isBlank()) {
             resp.getWriter().write("{\"success\":false,\"message\":\"Vui lòng nhập chữ ký.\"}");
             return;
         }
 
-        String publicKey = keyDao.getActivePublicKey(user.getId());
-        if (publicKey == null) {
-            resp.getWriter().write("{\"success\":false,\"message\":\"Không tìm thấy khóa công khai. Vui lòng tạo lại khóa.\"}");
-            return;
-        }
-
         try {
-            boolean isValid = SignatureUtil.verifySignature(signature.trim(), orderHash, publicKey);
+            int orderId = Integer.parseInt(orderIdStr);
+            Order order = orderDao.getOrderById(orderId);
+
+            if (order == null || !order.getUserId().equals(user.getId())) {
+                resp.getWriter().write("{\"success\":false,\"message\":\"Không tìm thấy đơn hàng.\"}");
+                return;
+            }
+
+            if (!"unsigned".equals(order.getSignatureStatus())) {
+                resp.getWriter().write("{\"success\":false,\"message\":\"Đơn hàng này đã được xác thực hoặc không hợp lệ.\"}");
+                return;
+            }
+
+            //lấy public key theo key_id đã gắn khi tạo đơn, không dùng active key hiện tại
+            String publicKey = keyDao.getPublicKeyById(order.getKeyId());
+            if (publicKey == null) {
+                resp.getWriter().write("{\"success\":false,\"message\":\"Không tìm thấy khóa công khai của đơn hàng.\"}");
+                return;
+            }
+
+            boolean isValid = SignatureUtil.verifySignature(signature.trim(), order.getOrderHash(), publicKey);
 
             if (!isValid) {
                 resp.getWriter().write("{\"success\":false,\"message\":\"Chữ ký không hợp lệ. Vui lòng kiểm tra lại private key và hash đã dùng.\"}");
                 return;
             }
 
-            pendingOrder.setKeyId(keyId);
-            pendingOrder.setOrderHash(orderHash);
-            pendingOrder.setSignedOrderData(canonicalData);
-            pendingOrder.setOrderSignature(signature.trim());
-            pendingOrder.setSignatureStatus("valid");
-            pendingOrder.setSignedAt(LocalDateTime.now());
-
-            orderDao.createOrder(pendingOrder, pendingItems);
-
-            Integer voucherId = pendingOrder.getVoucherId();
-            if (voucherId != null) {
-                voucherDao.incrementUsage(voucherId);
+            boolean updated = orderDao.updateOrderSignature(orderId, signature.trim(), "chờ xử lý");
+            if (updated) {
+                resp.getWriter().write("{\"success\":true}");
+            } else {
+                resp.getWriter().write("{\"success\":false,\"message\":\"Không thể cập nhật đơn hàng. Vui lòng thử lại.\"}");
             }
 
-            clearPendingSession(session);
-            session.removeAttribute("cart");
-            session.removeAttribute("appliedVoucher");
-            session.removeAttribute("voucherError");
-
-            resp.getWriter().write("{\"success\":true,\"redirect\":\"account\"}");
-
+        } catch (NumberFormatException e) {
+            resp.getWriter().write("{\"success\":false,\"message\":\"Mã đơn hàng không hợp lệ.\"}");
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"success\":false,\"message\":\"Lỗi lưu đơn hàng: " + e.getMessage() + "\"}");
+            resp.getWriter().write("{\"success\":false,\"message\":\"Lỗi xử lý: " + e.getMessage() + "\"}");
         }
-    }
-
-    private void clearPendingSession(HttpSession session) {
-        session.removeAttribute("pendingOrder");
-        session.removeAttribute("pendingItems");
-        session.removeAttribute("pendingOrderHash");
-        session.removeAttribute("pendingCanonicalData");
-        session.removeAttribute("pendingKeyId");
     }
 }
