@@ -54,4 +54,14 @@ public class KeyDao extends BaseDao {
                         .orElse(null)
         );
     }
+
+    public String getPublicKeyById(int keyId) {
+        return get().withHandle(handle ->
+                handle.createQuery("SELECT public_key FROM user_keys WHERE id = :keyId")
+                        .bind("keyId", keyId)
+                        .mapTo(String.class)
+                        .findFirst()
+                        .orElse(null)
+        );
+    }
 }

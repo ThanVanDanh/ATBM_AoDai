@@ -89,6 +89,17 @@ public class OrderDao extends BaseDao {
                         .execute() > 0);
     }
 
+    public boolean updateOrderSignature(int orderId, String signature, String orderStatus) {
+        return jdbi.withHandle(handle -> handle.createUpdate(
+                "UPDATE Orders SET order_signature = :signature, signature_status = 'valid', " +
+                "order_status = :orderStatus, signed_at = NOW(), signature_checked_at = NOW() " +
+                "WHERE id = :orderId AND signature_status = 'unsigned'")
+                .bind("signature", signature)
+                .bind("orderStatus", orderStatus)
+                .bind("orderId", orderId)
+                .execute() > 0);
+    }
+
     public boolean cancelOrderWithReason(int orderId, String status, String cancelReason) {
         return jdbi.withHandle(
                 handle -> handle
@@ -105,7 +116,7 @@ public class OrderDao extends BaseDao {
                 "p.name_product AS productName, " +
                 "(SELECT pi.image_url FROM Product_images pi WHERE pi.product_id = p.id AND pi.is_thumbnail = 1 LIMIT 1) AS productImage, "
                 +
-                "pv.size AS size " +
+                "pv.size AS size, pv.sku AS sku " +
                 "FROM Order_items oi " +
                 "LEFT JOIN Product_variants pv ON oi.variant_id = pv.id " +
                 "LEFT JOIN Products p ON pv.product_id = p.id " +
