@@ -69,3 +69,65 @@
             throw new Error(data.message || "Lỗi lưu khóa vào cơ sở dữ liệu từ phía máy chủ.");
         }
     }
+    async function handleImportPublicKey(event) {
+        const file = event.target.files[0];
+        if (!file) return;
+
+        const reader = new FileReader();
+
+        reader.onload = async function(e) {
+            const content = e.target.result;
+
+            if (!content.includes("-----BEGIN PUBLIC KEY-----")) {
+                alert("File không hợp lệ! Vui lòng chọn file chứa Public Key định dạng PEM.");
+                event.target.value = "";
+                return;
+            }
+
+            try {
+                await registerPublicKey(content);
+                alert("Đã nhập khóa thành công! Public key đã được cập nhật vào hệ thống.");
+                location.reload();
+            } catch (error) {
+                console.error(error);
+                alert("Lỗi khi lưu khóa: " + error.message);
+            }
+        };
+        reader.readAsText(file);
+    }
+    function openImportTextModal() {
+        const modal = document.getElementById('import-text-modal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeImportTextModal() {
+        const modal = document.getElementById('import-text-modal');
+        if (modal) {
+            modal.style.display = 'none';
+            document.getElementById('pasted-public-key').value = '';
+        }
+    }
+
+    async function submitPastedKey() {
+        const keyContent = document.getElementById('pasted-public-key').value.trim();
+
+        if (!keyContent) {
+            alert("Vui lòng dán nội dung khóa trước khi lưu!");
+            return;
+        }
+
+        if (!keyContent.includes("-----BEGIN PUBLIC KEY-----")) {
+            alert("Nội dung không hợp lệ! Khóa phải chứa dòng -----BEGIN PUBLIC KEY-----");
+            return;
+        }
+
+        try {
+            await registerPublicKey(keyContent);
+            alert("Đã nhập khóa thành công! Public key đã được cập nhật vào hệ thống.");
+            closeImportTextModal();
+            location.reload();
+        } catch (error) {
+            console.error(error);
+            alert("Lỗi khi lưu khóa: " + error.message);
+        }
+    }
