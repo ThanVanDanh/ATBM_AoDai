@@ -14,7 +14,7 @@
           integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+IYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
           crossorigin="anonymous" referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style/account.css">
-    <script src="scripts/account.js"></script>
+    <script src="scripts/account.js?v=1"></script>
     <script src="scripts/genKey.js"></script>
     <link rel="stylesheet" href="style/style-header.css">
     <link rel="stylesheet" href="style/footer.css">
@@ -151,7 +151,7 @@
                             <th>Ngày mua</th>
                             <th>Tổng thanh toán</th>
                             <th>Trạng thái</th>
-                            <th>Chữ ký điện tử</th>
+                            <th>Chữ ký</th>
                             <th>Thao tác</th>
                         </tr>
                         </thead>
@@ -203,11 +203,10 @@
                                             </c:choose>
                                         </td>
                                         <td>
-                                            <c:if
-                                                    test="${order.orderStatus.toLowerCase().contains('chờ') or order.orderStatus.toLowerCase().contains('đang xử lý')}">
-                                                <button onclick="cancelOrder(${order.id})"
-                                                        class="action-btn-cancel action-link">Hủy
-                                                    đơn</button>
+
+                                            <c:if test="${order.signatureStatus == 'unsigned' and order.orderStatus == 'Đang chờ xác thực'}">
+                                                <button onclick="openSignOrderModal(${order.id})"
+                                                        class="action-link action-sign-btn">Ký đơn</button>
                                             </c:if>
                                             <a href="javascript:void(0)"
                                                onclick="viewOrderDetails(${order.id})"
@@ -502,6 +501,11 @@
             <p>Giảm giá: <span id="modal-discount" style="color: green;"></span></p>
             <h3 style="color: #d32f2f; margin-top: 10px;">TỔNG CỘNG: <span id="modal-total"></span></h3>
         </div>
+
+        <div class="modal-actions" style="justify-content:space-between; margin-top:20px;">
+            <button id="modal-cancel-btn" class="btn-secondary" style="display:none;">Hủy đơn hàng</button>
+            <button class="btn-secondary" onclick="document.getElementById('order-details-modal').style.display='none'">Đóng</button>
+        </div>
     </div>
 </div>
 
@@ -550,6 +554,114 @@
         </div>
     </div>
 </div>
+
+<div class="modal-overlay" id="sign-order-modal" style="display:none;">
+    <div class="modal-content" style="max-width:560px;">
+        <button class="modal-close" onclick="closeSignOrderModal()">&times;</button>
+        <h4>XÁC THỰC ĐƠN HÀNG BẰNG CHỮ KÝ SỐ</h4>
+
+        <div style="margin:16px 0;">
+            <p style="font-size:13px;color:#555;margin-bottom:8px;">Thông tin đơn hàng gốc (Canonical Data):</p>
+            <pre id="sign-modal-data" style="background:#f5f5f5;padding:10px;border-radius:4px;font-size:12px;white-space:pre-wrap;max-height:150px;overflow-y:auto;border:1px solid #ddd;"></pre>
+        </div>
+
+        <div style="margin:16px 0;">
+            <p style="font-size:13px;color:#555;margin-bottom:8px;">Mã hash SHA-256 của đơn hàng (dùng để ký trong Java Swing Tool):</p>
+            <div style="display:flex;align-items:center;gap:8px;">
+                <code id="sign-modal-hash" style="flex:1;word-break:break-all;background:#f5f5f5;padding:8px;border-radius:4px;font-size:12px;"></code>
+                <button onclick="copyOrderHash()" class="btn-secondary" style="white-space:nowrap;padding:6px 12px;font-size:12px;">Sao chép</button>
+            </div>
+        </div>
+
+        <div style="margin-bottom:16px;">
+            <label style="font-size:13px;font-weight:600;display:block;margin-bottom:6px;">Dán chữ ký Base64 từ Java Swing Tool:</label>
+            <textarea id="sign-modal-signature" rows="4"
+                style="width:100%;padding:10px;border:1px solid #ddd;border-radius:4px;font-size:12px;resize:vertical;box-sizing:border-box;"
+                placeholder="Dán chuỗi chữ ký Base64 vào đây..."></textarea>
+            <p id="sign-modal-error" style="color:#d32f2f;font-size:12px;margin-top:4px;display:none;"></p>
+        </div>
+
+        <div class="modal-actions" style="justify-content:flex-end; gap:8px;">
+            <button class="btn-secondary" onclick="closeSignOrderModal()">Đóng</button>
+            <button class="btn-primary" onclick="submitSignature()" id="btn-submit-sign">Xác nhận chữ ký</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentSignOrderId = null;
+
+    function openSignOrderModal(orderId) {
+        fetch('order-details?id=' + orderId)
+            .then(r => r.json())
+            .then(data => {
+                if (!data.success) {
+                    alert(data.message || 'Không thể tải thông tin đơn hàng.');
+                    return;
+                }
+                currentSignOrderId = orderId;
+                document.getElementById('sign-modal-data').textContent = data.order.signedOrderData || '';
+                document.getElementById('sign-modal-hash').textContent = data.order.orderHash || '';
+                document.getElementById('sign-modal-signature').value = '';
+                document.getElementById('sign-modal-error').style.display = 'none';
+                document.getElementById('sign-order-modal').style.display = 'flex';
+            })
+            .catch(err => {
+                console.error(err);
+                alert('Lỗi kết nối máy chủ');
+            });
+    }
+
+    function closeSignOrderModal() {
+        document.getElementById('sign-order-modal').style.display = 'none';
+        currentSignOrderId = null;
+    }
+
+    function copyOrderHash() {
+        const hash = document.getElementById('sign-modal-hash').textContent;
+        navigator.clipboard.writeText(hash).then(() => alert('Đã sao chép hash!'));
+    }
+
+    function submitSignature() {
+        const signature = document.getElementById('sign-modal-signature').value.trim();
+        const errEl = document.getElementById('sign-modal-error');
+
+        if (!signature) {
+            errEl.textContent = 'Vui lòng nhập chữ ký.';
+            errEl.style.display = 'block';
+            return;
+        }
+
+        const btn = document.getElementById('btn-submit-sign');
+        btn.disabled = true;
+        btn.textContent = 'Đang xử lý...';
+
+        fetch('submit-signed-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8' },
+            body: 'orderId=' + currentSignOrderId + '&signature=' + encodeURIComponent(signature)
+        })
+        .then(r => r.json())
+        .then(data => {
+            btn.disabled = false;
+            btn.textContent = 'Xác nhận chữ ký';
+            if (data.success) {
+                closeSignOrderModal();
+                alert('Xác thực thành công! Đơn hàng đã được xác nhận.');
+                location.reload();
+            } else {
+                errEl.textContent = data.message || 'Chữ ký không hợp lệ.';
+                errEl.style.display = 'block';
+            }
+        })
+        .catch(() => {
+            btn.disabled = false;
+            btn.textContent = 'Xác nhận chữ ký';
+            errEl.textContent = 'Lỗi kết nối máy chủ.';
+            errEl.style.display = 'block';
+        });
+    }
+</script>
 
 <jsp:include page="footer.jsp" />
 </body>

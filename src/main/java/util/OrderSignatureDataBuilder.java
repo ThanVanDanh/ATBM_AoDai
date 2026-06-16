@@ -12,8 +12,24 @@ public class OrderSignatureDataBuilder {
     private OrderSignatureDataBuilder() {}
 
 
+    public static class SignableItem {
+        private String sku;
+        private int quantity;
+        private double price;
+
+        public SignableItem(String sku, int quantity, double price) {
+            this.sku = sku;
+            this.quantity = quantity;
+            this.price = price;
+        }
+
+        public String getSku() { return sku; }
+        public int getQuantity() { return quantity; }
+        public double getPrice() { return price; }
+    }
+
      //build chuỗi canonical để hash và hiển thị cho user ký
-    public static String build(Order order, List<CartItem> items) {
+    public static String build(Order order, List<SignableItem> items) {
         StringBuilder sb = new StringBuilder();
         sb.append("ORDER_CODE=").append(order.getOrderCode()).append("\n");
         sb.append("NAME=").append(nullSafe(order.getCustomerFullname())).append("\n");
@@ -29,7 +45,7 @@ public class OrderSignatureDataBuilder {
 
         //mỗi item ngăn cách bằng |
         for (int i = 0; i < items.size(); i++) {
-            CartItem item = items.get(i);
+            SignableItem item = items.get(i);
             sb.append(nullSafe(item.getSku()))
               .append(":")
               .append(item.getQuantity())

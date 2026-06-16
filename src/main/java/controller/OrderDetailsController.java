@@ -68,12 +68,7 @@ public class OrderDetailsController extends HttpServlet {
 
             List<OrderItem> items = orderDao.getOrderItems(orderId);
 
-            System.out.println("DEBUG: createdAt = " + targetOrder.getCreatedAt());
-            String formatted = targetOrder.getFormattedCreatedAt();
-            System.out.println("DEBUG: formatted date = " + formatted);
-            targetOrder.setFormattedCreatedAt(formatted);
-            System.out
-                    .println("DEBUG: After setting, formattedCreatedAt field = " + targetOrder.getFormattedCreatedAt());
+            targetOrder.setFormattedCreatedAt(targetOrder.getFormattedCreatedAt());
 
             response.put("success", true);
             response.put("order", targetOrder);
