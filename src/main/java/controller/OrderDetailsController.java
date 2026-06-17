@@ -68,11 +68,48 @@ public class OrderDetailsController extends HttpServlet {
 
             List<OrderItem> items = orderDao.getOrderItems(orderId);
 
+            boolean signatureValid = false;
+
+            try {
+                Order orderHienTai = orderDao.getOrderById(orderId);
+
+                List<util.OrderSignatureDataBuilder.SignableItem> signableItems = new java.util.ArrayList<>();
+
+                for (OrderItem item : items) {
+                    signableItems.add(
+                            new util.OrderSignatureDataBuilder.SignableItem(
+                                    item.getSku(),
+                                    item.getQuantity(),
+                                    item.getPriceAtPurchase()
+                            )
+                    );
+                }
+
+                String currentData = util.OrderSignatureDataBuilder.build(orderHienTai, signableItems);
+                String currentHash = util.SignatureUtil.sha256Hex(currentData);
+
+                if (!currentHash.equals(orderHienTai.getOrderHash())) {
+                    orderDao.updateSignatureStatus(orderId, "invalid");
+                    signatureValid = false;
+                } else {
+                    util.OrderSignatureVerifier verifier = new util.OrderSignatureVerifier();
+                    signatureValid = verifier.verifyAndUpdateStatus(orderId);
+                }
+
+                targetOrder = orderDao.getOrderById(orderId);
+
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                orderDao.updateSignatureStatus(orderId, "invalid");
+                targetOrder = orderDao.getOrderById(orderId);
+            }
+
             targetOrder.setFormattedCreatedAt(targetOrder.getFormattedCreatedAt());
 
             response.put("success", true);
             response.put("order", targetOrder);
             response.put("items", items);
+            response.put("signatureValid", signatureValid);
 
         } catch (NumberFormatException e) {
             response.put("success", false);
