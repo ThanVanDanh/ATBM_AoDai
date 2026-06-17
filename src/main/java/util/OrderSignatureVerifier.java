@@ -40,11 +40,13 @@ public class OrderSignatureVerifier {
 
         if (!currentHash.equals(order.getOrderHash())) {
             orderDao.updateSignatureStatus(orderId, "invalid");
+            orderDao.updateOrderStatus(orderId, "Cần xác minh");
             return false;
         }
         String publicKey = keyDao.getPublicKeyById(order.getKeyId());
         if (publicKey == null || publicKey.isBlank()) {
             orderDao.updateSignatureStatus(orderId, "invalid");
+            orderDao.updateOrderStatus(orderId, "Cần xác minh");
             return false;
         }
         boolean valid = SignatureUtil.verifySignature(
