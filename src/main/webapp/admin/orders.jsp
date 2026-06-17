@@ -330,10 +330,46 @@
                     document.getElementById('modal-signed-at').textContent = order.signedAt || '-';
 
                     const statusSelect = document.getElementById('modal-status-select');
+                    const updateBtn = document.querySelector('.status-update-form .btn-primary');
+                    
+                    statusSelect.disabled = false;
+                    updateBtn.disabled = false;
+                    updateBtn.style.opacity = '1';
+
                     for (let option of statusSelect.options) {
+                        option.disabled = false;
                         if (option.value === order.orderStatus) {
                             option.selected = true;
-                            break;
+                        }
+                    }
+
+                    if (order.signatureStatus === 'invalid') {
+                        for (let option of statusSelect.options) {
+                            if (option.value !== 'Đã hủy' && option.value !== 'Cần xác minh') {
+                                option.disabled = true;
+                            }
+                        }
+                        if (order.orderStatus === 'Đã hủy') {
+                            updateBtn.disabled = true;
+                            updateBtn.style.opacity = '0.5';
+                            statusSelect.disabled = true;
+                        }
+                    } else if (order.signatureStatus === 'unsigned') {
+                        for (let option of statusSelect.options) {
+                            if (option.value !== 'Đã hủy' && option.value !== 'Đang chờ xác thực') {
+                                option.disabled = true;
+                            }
+                        }
+                        if (order.orderStatus === 'Đã hủy') {
+                            updateBtn.disabled = true;
+                            updateBtn.style.opacity = '0.5';
+                            statusSelect.disabled = true;
+                        }
+                    } else {
+                        if (order.orderStatus === 'Đã hủy' || order.orderStatus === 'Hoàn thành') {
+                            updateBtn.disabled = true;
+                            updateBtn.style.opacity = '0.5';
+                            statusSelect.disabled = true;
                         }
                     }
 

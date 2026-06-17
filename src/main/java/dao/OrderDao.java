@@ -93,6 +93,15 @@ public class OrderDao extends BaseDao {
                 .orElse(null));
     }
 
+    public String getVariantColorBySku(String sku) {
+        if (sku == null || sku.trim().isEmpty()) return "";
+        return jdbi.withHandle(handle -> handle.createQuery("SELECT color FROM Product_variants WHERE sku = :sku")
+                .bind("sku", sku)
+                .mapTo(String.class)
+                .findFirst()
+                .orElse(""));
+    }
+
     public List<Order> getOrdersByUserId(int userId) {
         return jdbi.withHandle(
                 handle -> handle.createQuery("SELECT * FROM Orders WHERE user_id = :userId ORDER BY created_at DESC")

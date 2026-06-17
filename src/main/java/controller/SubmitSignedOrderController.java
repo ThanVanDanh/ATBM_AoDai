@@ -76,35 +76,20 @@ public class SubmitSignedOrderController extends HttpServlet {
                 return;
             }
 
+            util.OrderSignatureVerifier verifier = new util.OrderSignatureVerifier();
+            verifier.verifyAndUpdateStatus(orderId);
+            order = orderDao.getOrderById(orderId); // reload
+
+            if ("invalid".equals(order.getSignatureStatus())) {
+                resp.getWriter().write("{\"success\":false,\"message\":\"Dữ liệu đơn hàng đã bị thay đổi, chữ ký không còn hợp lệ.\"}");
+                return;
+            }
+
             boolean isValid = SignatureUtil.verifySignature(signature.trim(), order.getOrderHash(), publicKey);
             if (!isValid) {
                 resp.getWriter().write("{\"success\":false,\"message\":\"Chữ ký không hợp lệ. Vui lòng kiểm tra lại private key và hash đã dùng.\"}");
                 return;
             }
-            List<OrderItem> items = orderDao.getOrderItems(orderId);
-
-            List<util.OrderSignatureDataBuilder.SignableItem> signableItems = new java.util.ArrayList<>();
-
-            for (model.order.OrderItem item : items) {
-                signableItems.add(
-                        new util.OrderSignatureDataBuilder.SignableItem(
-                                item.getSku(),
-                                item.getQuantity(),
-                                item.getPriceAtPurchase()
-                        )
-                );
-            }
-
-            String currentSignedData = util.OrderSignatureDataBuilder.build(order, signableItems);
-            String currentHash = SignatureUtil.sha256Hex(currentSignedData);
-
-            if (!currentHash.equals(order.getOrderHash())) {
-                orderDao.updateSignatureStatus(orderId, "invalid");
-                resp.getWriter().write("{\"success\":false,\"message\":\"Dữ liệu đơn hàng đã bị thay đổi, chữ ký không còn hợp lệ.\"}");
-                return;
-            }
-
-
 
             boolean updated = orderDao.updateOrderSignature(orderId, signature.trim(), "Chờ xử lý");
             if (updated) {

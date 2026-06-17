@@ -53,16 +53,29 @@ public class AddCartController extends HttpServlet {
             String size = request.getParameter("size");
             if (size == null) size = "";
 
-            String priceRaw = request.getParameter("price");
             double price = 0.0;
-            if (priceRaw != null && !priceRaw.isEmpty()) {
-                try {
-                    price = Double.parseDouble(priceRaw);
-                } catch (NumberFormatException e) {
+            Product product = productService.getProduct(productId);
+            if (product != null) {
+                java.util.List<model.product.ProductVariant> variants = product.getVariants();
+                if (variants != null) {
+                    for (model.product.ProductVariant v : variants) {
+                        if ((!sku.isEmpty() && sku.equals(v.getSku())) ||
+                                (!size.isEmpty() && size.equals(v.getSize()))) {
+                            if (v.getDiscountedPrice() > 0 && v.getDiscountedPrice() < v.getCurrentPrice()) {
+                                price = v.getDiscountedPrice();
+                            } else {
+                                price = v.getCurrentPrice();
+                            }
+                            break;
+                        }
+                    }
+                    if (price == 0 && !variants.isEmpty()) {
+                        price = variants.get(0).getCurrentPrice();
+                    }
+                }
+                if (price == 0) {
                     price = productService.getPriceById(productId);
                 }
-            } else {
-                price = productService.getPriceById(productId);
             }
 
             HttpSession session = request.getSession();
@@ -71,7 +84,6 @@ public class AddCartController extends HttpServlet {
                 cart = new Cart();
             }
 
-            Product product = productService.getProduct(productId);
             if (product != null) {
                 cart.addItem(product, quantity, price, sku, size);
 

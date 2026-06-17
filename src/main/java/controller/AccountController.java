@@ -41,13 +41,12 @@ public class AccountController extends HttpServlet {
         OrderSignatureVerifier verifier = new OrderSignatureVerifier();
 
         for (Order order : orders) {
-            if ("valid".equalsIgnoreCase(order.getSignatureStatus())) {
-                try {
-                    verifier.verifyAndUpdateStatus(order.getId());
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    orderDao.updateSignatureStatus(order.getId(), "invalid");
-                }
+            try {
+                verifier.verifyAndUpdateStatus(order.getId());
+            } catch (Exception e) {
+                e.printStackTrace();
+                orderDao.updateSignatureStatus(order.getId(), "invalid");
+                orderDao.updateOrderStatus(order.getId(), "Cần xác minh");
             }
         }
 

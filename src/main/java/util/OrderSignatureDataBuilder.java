@@ -14,16 +14,25 @@ public class OrderSignatureDataBuilder {
 
     public static class SignableItem {
         private String sku;
+        private String name;
+        private String size;
+        private String color;
         private int quantity;
         private double price;
 
-        public SignableItem(String sku, int quantity, double price) {
+        public SignableItem(String sku, String name, String size, String color, int quantity, double price) {
             this.sku = sku;
+            this.name = name;
+            this.size = size;
+            this.color = color;
             this.quantity = quantity;
             this.price = price;
         }
 
         public String getSku() { return sku; }
+        public String getName() { return name; }
+        public String getSize() { return size; }
+        public String getColor() { return color; }
         public int getQuantity() { return quantity; }
         public double getPrice() { return price; }
     }
@@ -41,12 +50,19 @@ public class OrderSignatureDataBuilder {
         sb.append("DISCOUNT=").append(formatAmount(order.getDiscountAmount())).append("\n");
         sb.append("TOTAL=").append(formatAmount(order.getTotalAmount())).append("\n");
         sb.append("PAYMENT=").append(nullSafe(order.getPaymentMethod())).append("\n");
+        sb.append("VOUCHER=").append(order.getVoucherId() != null ? order.getVoucherId() : "NONE").append("\n");
         sb.append("ITEMS=");
 
         //mỗi item ngăn cách bằng |
         for (int i = 0; i < items.size(); i++) {
             SignableItem item = items.get(i);
             sb.append(nullSafe(item.getSku()))
+              .append(":")
+              .append(nullSafe(item.getName()))
+              .append(":")
+              .append(nullSafe(item.getSize()))
+              .append(":")
+              .append(nullSafe(item.getColor()))
               .append(":")
               .append(item.getQuantity())
               .append(":")
