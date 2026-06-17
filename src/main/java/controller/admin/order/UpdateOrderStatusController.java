@@ -2,6 +2,8 @@ package controller.admin.order;
 
 import com.google.gson.Gson;
 import dao.OrderDao;
+import model.order.Order;
+import util.OrderSignatureVerifier;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -16,7 +18,7 @@ import java.util.Map;
 public class UpdateOrderStatusController extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
+        resp.setContentType("application/json;charset=UTF-8");
         resp.setCharacterEncoding("UTF-8");
         req.setCharacterEncoding("UTF-8");
 
@@ -27,31 +29,68 @@ public class UpdateOrderStatusController extends HttpServlet {
             String orderIdStr = req.getParameter("orderId");
             String newStatus = req.getParameter("status");
 
-            if (orderIdStr == null || orderIdStr.isEmpty()) {
+            if (isBlank(orderIdStr)) {
                 response.put("success", false);
                 response.put("message", "Thiếu mã đơn hàng");
                 resp.getWriter().write(gson.toJson(response));
                 return;
             }
 
-            if (newStatus == null || newStatus.isEmpty()) {
+            if (isBlank(newStatus)) {
                 response.put("success", false);
                 response.put("message", "Thiếu trạng thái mới");
                 resp.getWriter().write(gson.toJson(response));
                 return;
             }
 
-            int orderId = Integer.parseInt(orderIdStr);
+            int orderId = Integer.parseInt(orderIdStr.trim());
+            newStatus = newStatus.trim();
+
             OrderDao orderDao = new OrderDao();
+            Order order = orderDao.getOrderById(orderId);
+
+            if (order == null) {
+                response.put("success", false);
+                response.put("message", "Không tìm thấy đơn hàng");
+                resp.getWriter().write(gson.toJson(response));
+                return;
+            }
+
+            if ("valid".equalsIgnoreCase(order.getSignatureStatus())) {
+                try {
+                    OrderSignatureVerifier verifier = new OrderSignatureVerifier();
+                    verifier.verifyAndUpdateStatus(orderId);
+                    order = orderDao.getOrderById(orderId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    orderDao.updateSignatureStatus(orderId, "invalid");
+                    orderDao.updateOrderStatus(orderId, "Cần xác minh");
+                    order = orderDao.getOrderById(orderId);
+                }
+            }
+
+            if ("invalid".equalsIgnoreCase(order.getSignatureStatus())
+                    && !isAllowedStatusForInvalidSignature(newStatus)) {
+                response.put("success", false);
+                response.put("message", "Đơn hàng có chữ ký giả mạo, chỉ có thể chuyển sang Cần xác minh hoặc Đã hủy.");
+                resp.getWriter().write(gson.toJson(response));
+                return;
+            }
 
             boolean updated;
 
-            if (newStatus.equalsIgnoreCase("đã hủy")) {
+            if ("đã hủy".equalsIgnoreCase(newStatus)) {
                 String cancelReason = req.getParameter("cancelReason");
-                if (cancelReason == null || cancelReason.trim().isEmpty()) {
-                    cancelReason = "Admin hủy đơn";
+
+                if (isBlank(cancelReason)) {
+                    if ("invalid".equalsIgnoreCase(order.getSignatureStatus())) {
+                        cancelReason = "Đơn hàng có chữ ký giả mạo";
+                    } else {
+                        cancelReason = "Admin hủy đơn";
+                    }
                 }
-                updated = orderDao.cancelOrderWithReason(orderId, newStatus, cancelReason);
+
+                updated = orderDao.cancelOrderWithReason(orderId, newStatus, cancelReason.trim());
             } else {
                 updated = orderDao.updateOrderStatus(orderId, newStatus);
             }
@@ -75,5 +114,14 @@ public class UpdateOrderStatusController extends HttpServlet {
         }
 
         resp.getWriter().write(gson.toJson(response));
+    }
+
+    private boolean isAllowedStatusForInvalidSignature(String status) {
+        return "cần xác minh".equalsIgnoreCase(status)
+                || "đã hủy".equalsIgnoreCase(status);
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
     }
 }

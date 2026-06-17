@@ -5,6 +5,7 @@ import dao.OrderDao;
 import model.order.Order;
 import model.order.OrderItem;
 import util.GsonUtil;
+import util.OrderSignatureVerifier;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -20,14 +21,16 @@ import java.util.Map;
 public class AdminOrderDetailsController extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
-        resp.setContentType("application/json");
+        resp.setContentType("application/json;charset=UTF-8");
         resp.setCharacterEncoding("UTF-8");
+
         Gson gson = GsonUtil.getGson();
         Map<String, Object> response = new HashMap<>();
 
         try {
             String orderIdStr = req.getParameter("orderId");
-            if (orderIdStr == null || orderIdStr.isEmpty()) {
+
+            if (orderIdStr == null || orderIdStr.trim().isEmpty()) {
                 response.put("success", false);
                 response.put("message", "Thiếu mã đơn hàng");
                 resp.getWriter().write(gson.toJson(response));
@@ -38,6 +41,7 @@ public class AdminOrderDetailsController extends HttpServlet {
             OrderDao orderDao = new OrderDao();
 
             Order order = orderDao.getOrderById(orderId);
+
             if (order == null) {
                 response.put("success", false);
                 response.put("message", "Không tìm thấy đơn hàng");
@@ -45,6 +49,18 @@ public class AdminOrderDetailsController extends HttpServlet {
                 return;
             }
 
+            if ("valid".equalsIgnoreCase(order.getSignatureStatus())) {
+                try {
+                    OrderSignatureVerifier verifier = new OrderSignatureVerifier();
+                    verifier.verifyAndUpdateStatus(orderId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    orderDao.updateSignatureStatus(orderId, "invalid");
+                    orderDao.updateOrderStatus(orderId, "Cần xác minh");
+                }
+            }
+
+            order = orderDao.getOrderById(orderId);
             List<OrderItem> items = orderDao.getOrderItems(orderId);
 
             order.setFormattedCreatedAt(order.getFormattedCreatedAt());
