@@ -49,15 +49,13 @@ public class AdminOrderDetailsController extends HttpServlet {
                 return;
             }
 
-            if ("valid".equalsIgnoreCase(order.getSignatureStatus())) {
-                try {
-                    OrderSignatureVerifier verifier = new OrderSignatureVerifier();
-                    verifier.verifyAndUpdateStatus(orderId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    orderDao.updateSignatureStatus(orderId, "invalid");
-                    orderDao.updateOrderStatus(orderId, "Cần xác minh");
-                }
+            try {
+                OrderSignatureVerifier verifier = new OrderSignatureVerifier();
+                verifier.verifyAndUpdateStatus(orderId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                orderDao.updateSignatureStatus(orderId, "invalid");
+                orderDao.updateOrderStatus(orderId, "Cần xác minh");
             }
 
             order = orderDao.getOrderById(orderId);

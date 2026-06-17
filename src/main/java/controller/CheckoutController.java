@@ -2,6 +2,7 @@ package controller;
 
 import dao.AddressDao;
 import dao.KeyDao;
+import dao.OrderDao;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -184,13 +185,18 @@ public class CheckoutController extends HttpServlet {
         Integer voucherId = null;
 
         if (voucher != null) {
-            if ("percentage".equalsIgnoreCase(voucher.getDiscountType())
-                    || "percent".equalsIgnoreCase(voucher.getDiscountType())) {
-                discountAmount = subtotal * (voucher.getDiscountValue() / 100.0);
+            if (voucher.isActive() && subtotal >= voucher.getMinOrderAmount()) {
+                if ("percentage".equalsIgnoreCase(voucher.getDiscountType())
+                        || "percent".equalsIgnoreCase(voucher.getDiscountType())) {
+                    discountAmount = subtotal * (voucher.getDiscountValue() / 100.0);
+                } else {
+                    discountAmount = voucher.getDiscountValue();
+                }
+                voucherId = voucher.getId();
             } else {
-                discountAmount = voucher.getDiscountValue();
+                discountAmount = 0;
+                voucherId = null;
             }
-            voucherId = voucher.getId();
         }
 
         double totalAmount = subtotal + shippingFee - discountAmount;
@@ -210,10 +216,16 @@ public class CheckoutController extends HttpServlet {
         List<CartItem> items = cart.getItems();
 
         List<OrderSignatureDataBuilder.SignableItem> signableItems = new java.util.ArrayList<>();
+        OrderDao orderDao = new OrderDao();
         for (CartItem item : items) {
+            String color = orderDao.getVariantColorBySku(item.getSku());
+            String productName = item.getProduct() != null ? item.getProduct().getNameProduct() : "";
             signableItems.add(
                     new OrderSignatureDataBuilder.SignableItem(
                             item.getSku(),
+                            productName,
+                            item.getSize(),
+                            color,
                             item.getQuantity(),
                             item.getPrice()
                     )
