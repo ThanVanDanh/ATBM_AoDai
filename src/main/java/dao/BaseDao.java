@@ -21,8 +21,6 @@ public abstract class BaseDao {
 
     private void connect() {
         try {
-            System.out.println("=== Creating Database Connection ===");
-
             MysqlDataSource ds = new MysqlDataSource();
 
             String url = String.format(

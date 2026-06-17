@@ -266,4 +266,17 @@ public class OrderDao extends BaseDao {
                         .list()
         );
     }
+    public boolean updateSignatureStatus(int orderId, String status) {
+        return jdbi.withHandle(handle ->
+                handle.createUpdate("""
+                UPDATE Orders
+                SET signature_status = :status,
+                    signature_checked_at = NOW()
+                WHERE id = :orderId
+            """)
+                        .bind("status", status)
+                        .bind("orderId", orderId)
+                        .execute() > 0
+        );
+    }
 }
