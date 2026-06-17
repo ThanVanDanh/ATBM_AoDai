@@ -37,11 +37,12 @@
                 <form action="" method="GET" class="filters">
                     <select id="filter-status" onchange="location.href='?page=1&status='+this.value">
                         <option value="">Tất cả Trạng thái</option>
-                        <option value="chờ xử lý" ${statusFilter == 'chờ xử lý' ? 'selected' : ''}>Chờ xử lý</option>
-                        <option value="đang xử lý" ${statusFilter == 'đang xử lý' ? 'selected' : ''}>Đang xử lý</option>
-                        <option value="đang giao" ${statusFilter == 'đang giao' ? 'selected' : ''}>Đang vận chuyển</option>
-                        <option value="hoàn thành" ${statusFilter == 'hoàn thành' ? 'selected' : ''}>Hoàn thành</option>
-                        <option value="đã hủy" ${statusFilter == 'đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                        <option value="chờ xử lý" ${statusFilter == 'Chờ xử lý' ? 'selected' : ''}>Chờ xử lý</option>
+                        <option value="đang xử lý" ${statusFilter == 'Đang xử lý' ? 'selected' : ''}>Đang xử lý</option>
+                        <option value="đang giao" ${statusFilter == 'Đang giao' ? 'selected' : ''}>Đang vận chuyển</option>
+                        <option value="hoàn thành" ${statusFilter == 'Hoàn thành' ? 'selected' : ''}>Hoàn thành</option>
+                        <option value="đã hủy" ${statusFilter == 'Đã hủy' ? 'selected' : ''}>Đã hủy</option>
+                        <option value="cần xác minh" ${statusFilter == 'Cần xác minh' ? 'selected' : ''}>Cần xác minh</option>
                     </select>
                     <input type="text" name="search"
                            value="${searchKeyword}" placeholder="Tìm theo tên khách..." class="table-search">
@@ -186,11 +187,12 @@
                         <input type="hidden" id="modal-order-id" value="">
                         <div class="status-update-form">
                             <select id="modal-status-select" class="update-status-select">
-                                <option value="chờ xử lý">Chờ xử lý</option>
-                                <option value="đang xử lý">Đang xử lý</option>
-                                <option value="đang giao">Đang vận chuyển</option>
-                                <option value="hoàn thành">Hoàn thành</option>
-                                <option value="đã hủy">Đã hủy</option>
+                                <option value="Chờ xử lý">Chờ xử lý</option>
+                                <option value="Đang xử lý">Đang xử lý</option>
+                                <option value="Đang giao">Đang vận chuyển</option>
+                                <option value="Hoàn thành">Hoàn thành</option>
+                                <option value="Đã hủy">Đã hủy</option>
+                                <option value="Cần xác minh">Cần xác minh</option>
                             </select>
                             <button class="btn-primary" onclick="updateOrderStatus()">Cập nhật</button>
                         </div>
