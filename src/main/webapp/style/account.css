@@ -476,3 +476,34 @@ main {
     gap: 12px;
     flex-wrap: wrap;
 }
+.tool-download-section {
+    margin-top: 30px;
+    padding: 20px;
+    border: 1px solid #e0e0e0;
+    border-radius: 8px;
+    background: #fafafa;
+}
+
+.tool-header {
+    color: #333;
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+.tool-icon {
+    color: #1976d2;
+}
+
+.tool-description {
+    font-size: 13px;
+    color: #555;
+    margin-bottom: 15px;
+    line-height: 1.5;
+}
+
+.btn-download {
+    text-decoration: none !important;
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
