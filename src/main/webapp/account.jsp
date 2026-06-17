@@ -299,9 +299,22 @@
                         <div class="key-info">
                             <p><strong>Trạng thái:</strong> <span class="status-badge status-shipping">Đang hoạt động</span></p>
                             <p><strong>Mã khóa (Key ID):</strong> #${currentKeyId}</p>
-                            <p><strong>Ngày kích hoạt:</strong> ${currentKeyCreatedAt}</p>
+                            <p><strong>Ngày kích hoạt:</strong> ${fn:replace(currentKeyCreatedAt, 'T', ' ')}</p>
                         </div>
-                        <button type="button" class="action-btn-cancel" style="background-color: #d32f2f; color: white;" onclick="openRevokeKeyModal()">Báo Mất / Hủy Khóa Này</button>
+                        <button type="button" class="action-btn-cancel" style="background-color: #d32f2f; color: white;" onclick="openRevokeKeyModal()">Báo mất / Hủy khóa này</button>
+                    </div>
+                    <div class="tool-download-section">
+                        <h4 class="tool-header">
+                            TOOL CHỮ KÝ SỐ
+                        </h4>
+                        <p class="tool-description">
+                            Vui lòng tải tool dưới đây về để ký xác nhận các đơn hàng trước khi chúng được xử lý.
+                        </p>
+
+                        <a href="https://www.dropbox.com/scl/fi/m0qfbbtew6gowoz7kx8al/ChuKySo.exe?rlkey=0op70tb02rdymqpinq8h1p38i&st=8f41lrz0&dl=1"
+                           class="btn-primary btn-download">
+                            <i class="fas fa-download"></i> Tool chữ ký số (.exe) - 40.4 MB
+                        </a>
                     </div>
                 </c:if>
 
