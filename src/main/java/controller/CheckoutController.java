@@ -2,9 +2,12 @@ package controller;
 
 import dao.AddressDao;
 import dao.KeyDao;
-import jakarta.servlet.*;
-import jakarta.servlet.http.*;
-import jakarta.servlet.annotation.*;
+import jakarta.servlet.ServletException;
+import jakarta.servlet.annotation.WebServlet;
+import jakarta.servlet.http.HttpServlet;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import model.cart.Cart;
 import model.cart.CartItem;
 import model.order.Order;
@@ -16,7 +19,7 @@ import util.SignatureUtil;
 import java.io.IOException;
 import java.util.List;
 
-@WebServlet(name = "CheckoutController", urlPatterns = { "/checkout", "/checkout/apply-voucher" })
+@WebServlet(name = "CheckoutController", urlPatterns = {"/checkout", "/checkout/apply-voucher"})
 public class CheckoutController extends HttpServlet {
     private AddressDao addressDao;
     private dao.VoucherDao voucherDao;
@@ -108,44 +111,73 @@ public class CheckoutController extends HttpServlet {
         Cart cart = (Cart) session.getAttribute("cart");
 
         if (cart == null || cart.getTotalQuantity() == 0) {
-            resp.getWriter().write("{\"success\":false,\"message\":\"Giỏ hàng trống.\"}");
+            writeJson(resp, false, "Giỏ hàng trống.");
             return;
         }
 
         User user = (User) session.getAttribute("account");
         if (user == null) {
-            resp.getWriter().write("{\"success\":false,\"message\":\"Vui lòng đăng nhập để đặt hàng.\"}");
+            writeJson(resp, false, "Vui lòng đăng nhập để đặt hàng.");
             return;
         }
 
         Integer keyId = keyDao.getActiveKeyId(user.getId());
         if (keyId == null) {
-            resp.getWriter().write("{\"success\":false,\"message\":\"Bạn chưa có khóa ký. Vui lòng tạo khóa trong trang tài khoản trước khi đặt hàng.\"}");
+            writeJson(resp, false, "Bạn chưa có khóa ký. Vui lòng tạo khóa trong trang tài khoản trước khi đặt hàng.");
             return;
         }
 
-        String fullName = req.getParameter("fullName");
-        String phone = req.getParameter("phone");
-        String email = req.getParameter("email");
-        String address = req.getParameter("address");
-        String city = req.getParameter("city");
-        String paymentMethod = req.getParameter("paymentMethod");
-        String orderNote = req.getParameter("orderNote");
+        String fullName = trim(req.getParameter("fullName"));
+        String phone = trim(req.getParameter("phone"));
+        String email = trim(req.getParameter("email"));
+        String address = trim(req.getParameter("address"));
+        String city = trim(req.getParameter("city"));
+        String paymentMethod = trim(req.getParameter("paymentMethod"));
+        String orderNote = trim(req.getParameter("orderNote"));
 
-        String shippingAddress = (address != null ? address : "") + ", " + (city != null ? city : "");
+        if (isBlank(fullName)) {
+            writeJson(resp, false, "Vui lòng nhập họ và tên.");
+            return;
+        }
+
+        if (isBlank(phone)) {
+            writeJson(resp, false, "Vui lòng nhập số điện thoại.");
+            return;
+        }
+
+        if (isBlank(email)) {
+            writeJson(resp, false, "Vui lòng nhập email.");
+            return;
+        }
+
+        if (isBlank(address)) {
+            writeJson(resp, false, "Vui lòng nhập địa chỉ.");
+            return;
+        }
+
+        if (isBlank(city)) {
+            writeJson(resp, false, "Vui lòng nhập tỉnh/thành phố, quận/huyện, phường/xã.");
+            return;
+        }
+
+        if (isBlank(paymentMethod)) {
+            writeJson(resp, false, "Vui lòng chọn phương thức thanh toán.");
+            return;
+        }
+
+        String shippingAddress = address + ", " + city;
 
         Order order = new Order();
         order.setUserId(user.getId());
-        order.setOrderCode("ORD" + System.currentTimeMillis());
         order.setCustomerFullname(fullName);
         order.setCustomerPhone(phone);
         order.setCustomerEmail(email);
         order.setShippingAddress(shippingAddress);
         order.setCustomerNote(orderNote);
-        order.setPaymentMethod(paymentMethod != null ? paymentMethod : "cod");
+        order.setPaymentMethod(paymentMethod);
 
         double subtotal = cart.getTotalPrice();
-        double shippingFee = (subtotal >= 300000) ? 0 : 30000;
+        double shippingFee = subtotal >= 300000 ? 0 : 30000;
 
         model.voucher.Voucher voucher = (model.voucher.Voucher) session.getAttribute("appliedVoucher");
         double discountAmount = 0;
@@ -162,8 +194,9 @@ public class CheckoutController extends HttpServlet {
         }
 
         double totalAmount = subtotal + shippingFee - discountAmount;
-        if (totalAmount < 0)
+        if (totalAmount < 0) {
             totalAmount = 0;
+        }
 
         order.setSubtotalAmount(subtotal);
         order.setShippingFee(shippingFee);
@@ -176,10 +209,15 @@ public class CheckoutController extends HttpServlet {
 
         List<CartItem> items = cart.getItems();
 
-        //map sang SignableItem để build hash
         List<OrderSignatureDataBuilder.SignableItem> signableItems = new java.util.ArrayList<>();
         for (CartItem item : items) {
-            signableItems.add(new OrderSignatureDataBuilder.SignableItem(item.getSku(), item.getQuantity(), item.getPrice()));
+            signableItems.add(
+                    new OrderSignatureDataBuilder.SignableItem(
+                            item.getSku(),
+                            item.getQuantity(),
+                            item.getPrice()
+                    )
+            );
         }
 
         String orderCode = "ORD" + System.currentTimeMillis();
@@ -193,7 +231,6 @@ public class CheckoutController extends HttpServlet {
             order.setOrderHash(orderHash);
             order.setSignedOrderData(signedOrderData);
 
-            //insert vào db, chờ user ký
             orderDao.createOrder(order, items);
 
             if (voucherId != null) {
@@ -208,7 +245,7 @@ public class CheckoutController extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            resp.getWriter().write("{\"success\":false,\"message\":\"Lỗi xử lý đơn hàng: " + e.getMessage() + "\"}");
+            writeJson(resp, false, "Lỗi xử lý đơn hàng: " + e.getMessage());
         }
     }
 
@@ -266,5 +303,31 @@ public class CheckoutController extends HttpServlet {
         session.setAttribute("appliedVoucher", voucher);
         session.removeAttribute("voucherError");
         resp.sendRedirect(req.getContextPath() + "/checkout");
+    }
+
+    private boolean isBlank(String value) {
+        return value == null || value.trim().isEmpty();
+    }
+
+    private String trim(String value) {
+        return value == null ? "" : value.trim();
+    }
+
+    private void writeJson(HttpServletResponse resp, boolean success, String message) throws IOException {
+        resp.getWriter().write(
+                "{\"success\":" + success + ",\"message\":\"" + escapeJson(message) + "\"}"
+        );
+    }
+
+    private String escapeJson(String value) {
+        if (value == null) {
+            return "";
+        }
+
+        return value
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
     }
 }
