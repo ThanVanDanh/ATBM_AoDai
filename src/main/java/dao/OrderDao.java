@@ -6,6 +6,7 @@ import org.jdbi.v3.core.Handle;
 import org.jdbi.v3.core.Jdbi;
 
 import java.util.List;
+import java.util.Map;
 
 public class OrderDao extends BaseDao {
     private final Jdbi jdbi;
@@ -31,19 +32,38 @@ public class OrderDao extends BaseDao {
                     .mapTo(int.class)
                     .one();
 
-            String itemSql = "INSERT INTO Order_items (order_id, variant_id, quantity, price_at_purchase) " +
-                    "VALUES (:orderId, :variantId, :quantity, :priceAtPurchase)";
+            String itemSql = "INSERT INTO Order_items (order_id, variant_id, quantity, price_at_purchase, " +
+                    "product_name_at_purchase, product_code_at_purchase, variant_sku_at_purchase, size_at_purchase, color_at_purchase, line_total_at_purchase) " +
+                    "VALUES (:orderId, :variantId, :quantity, :priceAtPurchase, " +
+                    ":productName, :productCode, :sku, :size, :color, :lineTotal)";
 
             for (CartItem item : cartItems) {
                 Integer variantId = getVariantIdByProductAndSku(handle, item.getProduct().getId(), item.getSku(),
                         item.getSize());
 
                 if (variantId != null) {
+                    Map<String, Object> variantInfo = handle.createQuery("SELECT size, color FROM Product_variants WHERE id = :id")
+                            .bind("id", variantId)
+                            .mapToMap()
+                            .findFirst()
+                            .orElse(null);
+                    
+                    String vSize = variantInfo != null && variantInfo.get("size") != null ? variantInfo.get("size").toString() : item.getSize();
+                    String vColor = variantInfo != null && variantInfo.get("color") != null ? variantInfo.get("color").toString() : "";
+                    
+                    double lineTotal = item.getQuantity() * item.getPrice();
+
                     handle.createUpdate(itemSql)
                             .bind("orderId", orderId)
                             .bind("variantId", variantId)
                             .bind("quantity", item.getQuantity())
                             .bind("priceAtPurchase", item.getPrice())
+                            .bind("productName", item.getProduct().getNameProduct())
+                            .bind("productCode", item.getProduct().getProductCode() != null ? item.getProduct().getProductCode() : "")
+                            .bind("sku", item.getSku() != null ? item.getSku() : "")
+                            .bind("size", vSize != null ? vSize : "")
+                            .bind("color", vColor)
+                            .bind("lineTotal", lineTotal)
                             .execute();
                 } else {
                     System.err.println("Warning: Cannot find Variant ID for SKU: " + item.getSku());
@@ -113,10 +133,10 @@ public class OrderDao extends BaseDao {
 
     public List<model.order.OrderItem> getOrderItems(int orderId) {
         String sql = "SELECT oi.*, " +
-                "p.name_product AS productName, " +
-                "(SELECT pi.image_url FROM Product_images pi WHERE pi.product_id = p.id AND pi.is_thumbnail = 1 LIMIT 1) AS productImage, "
-                +
-                "pv.size AS size, pv.sku AS sku " +
+                "COALESCE(oi.product_name_at_purchase, p.name_product) AS productName, " +
+                "(SELECT pi.image_url FROM Product_images pi WHERE pi.product_id = p.id AND pi.is_thumbnail = 1 LIMIT 1) AS productImage, " +
+                "COALESCE(oi.size_at_purchase, pv.size) AS size, " +
+                "COALESCE(oi.variant_sku_at_purchase, pv.sku) AS sku " +
                 "FROM Order_items oi " +
                 "LEFT JOIN Product_variants pv ON oi.variant_id = pv.id " +
                 "LEFT JOIN Products p ON pv.product_id = p.id " +
