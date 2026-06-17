@@ -114,10 +114,6 @@ public class AdminOrderController extends HttpServlet {
                 continue;
             }
 
-            if (!"valid".equalsIgnoreCase(order.getSignatureStatus())) {
-                continue;
-            }
-
             try {
                 verifier.verifyAndUpdateStatus(order.getId());
             } catch (Exception e) {

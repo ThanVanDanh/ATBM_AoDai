@@ -56,23 +56,29 @@ public class UpdateOrderStatusController extends HttpServlet {
                 return;
             }
 
-            if ("valid".equalsIgnoreCase(order.getSignatureStatus())) {
-                try {
-                    OrderSignatureVerifier verifier = new OrderSignatureVerifier();
-                    verifier.verifyAndUpdateStatus(orderId);
-                    order = orderDao.getOrderById(orderId);
-                } catch (Exception e) {
-                    e.printStackTrace();
-                    orderDao.updateSignatureStatus(orderId, "invalid");
-                    orderDao.updateOrderStatus(orderId, "Cần xác minh");
-                    order = orderDao.getOrderById(orderId);
-                }
+            try {
+                OrderSignatureVerifier verifier = new OrderSignatureVerifier();
+                verifier.verifyAndUpdateStatus(orderId);
+                order = orderDao.getOrderById(orderId);
+            } catch (Exception e) {
+                e.printStackTrace();
+                orderDao.updateSignatureStatus(orderId, "invalid");
+                orderDao.updateOrderStatus(orderId, "Cần xác minh");
+                order = orderDao.getOrderById(orderId);
             }
 
             if ("invalid".equalsIgnoreCase(order.getSignatureStatus())
                     && !isAllowedStatusForInvalidSignature(newStatus)) {
                 response.put("success", false);
                 response.put("message", "Đơn hàng có chữ ký giả mạo, chỉ có thể chuyển sang Cần xác minh hoặc Đã hủy.");
+                resp.getWriter().write(gson.toJson(response));
+                return;
+            }
+
+            if ("unsigned".equalsIgnoreCase(order.getSignatureStatus())
+                    && !"đã hủy".equalsIgnoreCase(newStatus)) {
+                response.put("success", false);
+                response.put("message", "Đơn hàng chưa được khách hàng ký số, chỉ có thể Hủy đơn.");
                 resp.getWriter().write(gson.toJson(response));
                 return;
             }
