@@ -14,6 +14,18 @@ public class OrderItem extends AId implements Serializable {
     private int quantity;
     @ColumnName("price_at_purchase")
     private double priceAtPurchase;
+    @ColumnName("product_name_at_purchase")
+    private String productNameAtPurchase;
+    @ColumnName("product_code_at_purchase")
+    private String productCodeAtPurchase;
+    @ColumnName("variant_sku_at_purchase")
+    private String variantSkuAtPurchase;
+    @ColumnName("size_at_purchase")
+    private String sizeAtPurchase;
+    @ColumnName("color_at_purchase")
+    private String colorAtPurchase;
+    @ColumnName("line_total_at_purchase")
+    private double lineTotalAtPurchase;
 
     public OrderItem() {
     }
@@ -55,6 +67,54 @@ public class OrderItem extends AId implements Serializable {
 
     public void setPriceAtPurchase(double priceAtPurchase) {
         this.priceAtPurchase = priceAtPurchase;
+    }
+
+    public String getProductNameAtPurchase() {
+        return productNameAtPurchase;
+    }
+
+    public void setProductNameAtPurchase(String productNameAtPurchase) {
+        this.productNameAtPurchase = productNameAtPurchase;
+    }
+
+    public String getProductCodeAtPurchase() {
+        return productCodeAtPurchase;
+    }
+
+    public void setProductCodeAtPurchase(String productCodeAtPurchase) {
+        this.productCodeAtPurchase = productCodeAtPurchase;
+    }
+
+    public String getVariantSkuAtPurchase() {
+        return variantSkuAtPurchase;
+    }
+
+    public void setVariantSkuAtPurchase(String variantSkuAtPurchase) {
+        this.variantSkuAtPurchase = variantSkuAtPurchase;
+    }
+
+    public String getSizeAtPurchase() {
+        return sizeAtPurchase;
+    }
+
+    public void setSizeAtPurchase(String sizeAtPurchase) {
+        this.sizeAtPurchase = sizeAtPurchase;
+    }
+
+    public String getColorAtPurchase() {
+        return colorAtPurchase;
+    }
+
+    public void setColorAtPurchase(String colorAtPurchase) {
+        this.colorAtPurchase = colorAtPurchase;
+    }
+
+    public double getLineTotalAtPurchase() {
+        return lineTotalAtPurchase;
+    }
+
+    public void setLineTotalAtPurchase(double lineTotalAtPurchase) {
+        this.lineTotalAtPurchase = lineTotalAtPurchase;
     }
 
     private String productName;
