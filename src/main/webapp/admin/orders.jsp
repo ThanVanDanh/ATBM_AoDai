@@ -425,7 +425,9 @@
             return;
         }
 
-        if (newStatus === 'đã hủy') {
+        const normalizedStatus = newStatus.trim().toLocaleLowerCase('vi-VN');
+
+        if (normalizedStatus === 'đã hủy' || normalizedStatus === 'đã huỷ') {
             showCancelReasonModal(orderId, newStatus);
             return;
         }
@@ -445,7 +447,8 @@
     }
 
     function sendStatusUpdate(orderId, status, cancelReason) {
-        let bodyStr = 'orderId=' + orderId + '&status=' + encodeURIComponent(status);
+        let bodyStr = 'orderId=' + encodeURIComponent(orderId)
+            + '&status=' + encodeURIComponent(status);
         if (cancelReason) {
             bodyStr += '&cancelReason=' + encodeURIComponent(cancelReason);
         }

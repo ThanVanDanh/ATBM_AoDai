@@ -76,7 +76,7 @@ public class UpdateOrderStatusController extends HttpServlet {
             }
 
             if ("unsigned".equalsIgnoreCase(order.getSignatureStatus())
-                    && !"đã hủy".equalsIgnoreCase(newStatus)) {
+                    && !isCancelStatus(newStatus)) {
                 response.put("success", false);
                 response.put("message", "Đơn hàng chưa được khách hàng ký số, chỉ có thể Hủy đơn.");
                 resp.getWriter().write(gson.toJson(response));
@@ -85,7 +85,7 @@ public class UpdateOrderStatusController extends HttpServlet {
 
             boolean updated;
 
-            if ("đã hủy".equalsIgnoreCase(newStatus)) {
+            if (isCancelStatus(newStatus)) {
                 String cancelReason = req.getParameter("cancelReason");
 
                 if (isBlank(cancelReason)) {
@@ -96,11 +96,10 @@ public class UpdateOrderStatusController extends HttpServlet {
                     }
                 }
 
-                updated = orderDao.cancelOrderWithReason(orderId, newStatus, cancelReason.trim());
+                updated = orderDao.cancelOrderWithReason(orderId, "Đã hủy", cancelReason.trim());
             } else {
                 updated = orderDao.updateOrderStatus(orderId, newStatus);
             }
-
             if (updated) {
                 response.put("success", true);
                 response.put("message", "Cập nhật trạng thái thành công");
@@ -123,11 +122,30 @@ public class UpdateOrderStatusController extends HttpServlet {
     }
 
     private boolean isAllowedStatusForInvalidSignature(String status) {
-        return "cần xác minh".equalsIgnoreCase(status)
-                || "đã hủy".equalsIgnoreCase(status);
+        return isNeedVerifyStatus(status) || isCancelStatus(status);
     }
 
     private boolean isBlank(String value) {
         return value == null || value.trim().isEmpty();
+    }
+    private boolean isCancelStatus(String status) {
+        if (status == null) {
+            return false;
+        }
+
+        String normalizedStatus = status.trim().toLowerCase();
+
+        return "đã hủy".equals(normalizedStatus)
+                || "đã huỷ".equals(normalizedStatus);
+    }
+
+    private boolean isNeedVerifyStatus(String status) {
+        if (status == null) {
+            return false;
+        }
+
+        String normalizedStatus = status.trim().toLowerCase();
+
+        return "cần xác minh".equals(normalizedStatus);
     }
 }
