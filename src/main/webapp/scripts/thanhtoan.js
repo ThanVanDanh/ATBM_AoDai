@@ -136,46 +136,39 @@ document.addEventListener("DOMContentLoaded", function () {
     btnDecreaseList.forEach(btn => {
         btn.addEventListener("click", handleDecreaseQuantity);
     });
+    document.addEventListener("click", function (event) {
+        const openBtn = event.target.closest(".js-open-modal");
 
-    const btnOpenList = document.querySelectorAll(".js-open-modal");
-    const btnCloseList = document.querySelectorAll(".js-close-modal");
-    const btnRemoveList = document.querySelectorAll(".js-remove-item");
+        if (openBtn) {
+            event.preventDefault();
 
-    btnOpenList.forEach(btnOpen => {
-        btnOpen.onclick = () => {
-            const overlay = btnOpen.nextElementSibling;
+            const cartItem = openBtn.closest(".js-cart-item");
+            const overlay = cartItem ? cartItem.querySelector(".js-overlay") : null;
+
             if (overlay) {
                 overlay.style.display = "flex";
             }
-        };
-    });
 
-    btnCloseList.forEach(btnClose => {
-        btnClose.onclick = () => {
-            const overlay = btnClose.closest(".js-overlay");
-            if (overlay) {
-                overlay.style.display = "none";
-            }
-        };
-    });
+            return;
+        }
 
-    btnRemoveList.forEach(btnRemove => {
-        btnRemove.onclick = () => {
-            const overlay = btnRemove.closest(".js-overlay");
+        const closeBtn = event.target.closest(".js-close-modal");
+
+        if (closeBtn) {
+            event.preventDefault();
+
+            const overlay = closeBtn.closest(".js-overlay");
+
             if (overlay) {
                 overlay.style.display = "none";
             }
 
-            const cartItem = btnRemove.closest(".js-cart-item");
+            return;
+        }
 
-            if (cartItem) {
-                const itemName = cartItem.querySelector(".item-details p");
-                alert(`Đã bỏ sản phẩm: ${itemName ? itemName.textContent : ""}!`);
-                cartItem.remove();
-            } else {
-                alert("Lỗi: Không tìm thấy sản phẩm để xóa!");
-            }
-        };
+        if (event.target.classList.contains("js-overlay")) {
+            event.target.style.display = "none";
+        }
     });
 
     const popupOverlay = document.getElementById("popupOverlay");
