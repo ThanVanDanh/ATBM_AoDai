@@ -11,9 +11,8 @@
     <link rel="icon" href="image/logoaodai.jpg" type="image/jpeg">
 
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css"
-          integrity="sha512-2SwdPD6INVrV/lHTZbO2nodKhrnDdJK9/kg2XD1r9uGqPo1cUbujc+uIYdlYdEErWNu69gVcYgdxlmVmzTWnetw=="
-          crossorigin="anonymous" referrerpolicy="no-referrer" />
-
+          crossorigin="anonymous"
+          referrerpolicy="no-referrer" />
     <link rel="stylesheet" href="style/aodai.css">
     <link rel="stylesheet" href="style/style-header.css">
     <link rel="stylesheet" href="style/footer.css">
@@ -173,15 +172,21 @@
                                         <i class="fa-solid fa-trash-can"></i>
                                     </button>
 
-                                    <div class="overlay js-overlay">
+                                    <div class="overlay js-overlay" style="display: none;">
                                         <div class="popup">
                                             <h2>Bạn muốn bỏ khỏi giỏ hàng</h2>
                                             <p class="product">${item.product.nameProduct}</p>
+
                                             <div class="actions">
-                                                <button type="button" class="btn normal js-close-modal">Quay lại</button>
+                                                <button type="button" class="btn normal js-close-modal">
+                                                    Quay lại
+                                                </button>
+
                                                 <a href="${pageContext.request.contextPath}/cart?action=remove&id=${item.product.id}&sku=${item.sku}"
                                                    class="btn danger js-remove-item-link"
-                                                   style="text-decoration: none; color: white;">Bỏ sản phẩm</a>
+                                                   style="text-decoration: none; color: white;">
+                                                    Bỏ sản phẩm
+                                                </a>
                                             </div>
                                         </div>
                                     </div>
@@ -196,7 +201,7 @@
 
                                             <button type="submit"
                                                     name="quantity"
-                                                    value="${item.quantity - 1}"
+                                                    value="${item.quantity > 1 ? item.quantity - 1 : 1}"
                                                     class="js-decrease-quantity">-</button>
 
                                             <span class="js-quantity-display" style="margin: 0 10px;">
@@ -496,6 +501,6 @@
         };
     }
 </script>
-
+<script src="${pageContext.request.contextPath}/scripts/thanhtoan.js"></script>
 </body>
 </html>
