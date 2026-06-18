@@ -114,13 +114,30 @@ public class AdminOrderController extends HttpServlet {
                 continue;
             }
 
+            if (isCancelStatus(order.getOrderStatus())) {
+                continue;
+            }
+
             try {
                 verifier.verifyAndUpdateStatus(order.getId());
             } catch (Exception e) {
                 e.printStackTrace();
                 orderDao.updateSignatureStatus(order.getId(), "invalid");
-                orderDao.updateOrderStatus(order.getId(), "Cần xác minh");
+
+                if (!isCancelStatus(order.getOrderStatus())) {
+                    orderDao.updateOrderStatus(order.getId(), "Cần xác minh");
+                }
             }
         }
+    }
+    private boolean isCancelStatus(String status) {
+        if (status == null) {
+            return false;
+        }
+
+        String normalizedStatus = status.trim().toLowerCase();
+
+        return "đã hủy".equals(normalizedStatus)
+                || "đã huỷ".equals(normalizedStatus);
     }
 }

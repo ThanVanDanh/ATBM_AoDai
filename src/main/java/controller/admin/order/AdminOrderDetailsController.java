@@ -49,13 +49,18 @@ public class AdminOrderDetailsController extends HttpServlet {
                 return;
             }
 
-            try {
-                OrderSignatureVerifier verifier = new OrderSignatureVerifier();
-                verifier.verifyAndUpdateStatus(orderId);
-            } catch (Exception e) {
-                e.printStackTrace();
-                orderDao.updateSignatureStatus(orderId, "invalid");
-                orderDao.updateOrderStatus(orderId, "Cần xác minh");
+            if (!isCancelStatus(order.getOrderStatus())) {
+                try {
+                    OrderSignatureVerifier verifier = new OrderSignatureVerifier();
+                    verifier.verifyAndUpdateStatus(orderId);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                    orderDao.updateSignatureStatus(orderId, "invalid");
+
+                    if (!isCancelStatus(order.getOrderStatus())) {
+                        orderDao.updateOrderStatus(orderId, "Cần xác minh");
+                    }
+                }
             }
 
             order = orderDao.getOrderById(orderId);
@@ -77,5 +82,15 @@ public class AdminOrderDetailsController extends HttpServlet {
         }
 
         resp.getWriter().write(gson.toJson(response));
+    }
+    private boolean isCancelStatus(String status) {
+        if (status == null) {
+            return false;
+        }
+
+        String normalizedStatus = status.trim().toLowerCase();
+
+        return "đã hủy".equals(normalizedStatus)
+                || "đã huỷ".equals(normalizedStatus);
     }
 }
