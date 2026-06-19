@@ -84,20 +84,20 @@
                                         <small class="cancel-reason-text">(${order.cancelReason})</small>
                                     </c:if>
                                 </td>
-                                <td class="text-center">
+                                <td class="text-center signature-status-cell">
                                     <c:choose>
                                         <c:when test="${order.signatureStatus == 'valid'}">
-                                            <span class="badge-sig badge-valid">
+                                            <span class="status-badge badge-sig badge-valid">
                                                 <i class="fas fa-check-circle"></i> Hợp lệ
-                                            </span>
+                                             </span>
                                         </c:when>
                                         <c:when test="${order.signatureStatus == 'invalid'}">
-                                            <span class="badge-sig badge-invalid">
+                                            <span class="status-badge badge-sig badge-invalid">
                                                 <i class="fas fa-times-circle"></i> Giả mạo
                                             </span>
                                         </c:when>
                                         <c:otherwise>
-                                            <span class="badge-sig badge-missing">
+                                            <span class="status-badge badge-sig badge-missing">
                                                 Chưa ký
                                             </span>
                                         </c:otherwise>
@@ -123,9 +123,6 @@
                                     <button class="btn-action btn-view" title="Xem"
                                             onclick="viewOrder(${order.id})"><i
                                             class="fas fa-eye"></i></button>
-                                    <button class="btn-action btn-delete" title="Xóa"
-                                            onclick="deleteOrder(${order.id})"><i
-                                            class="fas fa-trash-alt"></i></button>
                                 </td>
                             </tr>
                         </c:forEach>
@@ -187,6 +184,7 @@
                         <input type="hidden" id="modal-order-id" value="">
                         <div class="status-update-form">
                             <select id="modal-status-select" class="update-status-select">
+                                <option value="Đang chờ xác thực">Đang chờ xác thực</option>
                                 <option value="Chờ xử lý">Chờ xử lý</option>
                                 <option value="Đang xử lý">Đang xử lý</option>
                                 <option value="Đang giao">Đang vận chuyển</option>
