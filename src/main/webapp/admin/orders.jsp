@@ -123,9 +123,6 @@
                                     <button class="btn-action btn-view" title="Xem"
                                             onclick="viewOrder(${order.id})"><i
                                             class="fas fa-eye"></i></button>
-                                    <button class="btn-action btn-delete" title="Xóa"
-                                            onclick="deleteOrder(${order.id})"><i
-                                            class="fas fa-trash-alt"></i></button>
                                 </td>
                             </tr>
                         </c:forEach>
