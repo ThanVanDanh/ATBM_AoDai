@@ -184,6 +184,7 @@
                         <input type="hidden" id="modal-order-id" value="">
                         <div class="status-update-form">
                             <select id="modal-status-select" class="update-status-select">
+                                <option value="Đang chờ xác thực">Đang chờ xác thực</option>
                                 <option value="Chờ xử lý">Chờ xử lý</option>
                                 <option value="Đang xử lý">Đang xử lý</option>
                                 <option value="Đang giao">Đang vận chuyển</option>
