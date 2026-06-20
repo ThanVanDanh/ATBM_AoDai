@@ -123,9 +123,7 @@
                                     <button class="btn-action btn-view" title="Xem"
                                             onclick="viewOrder(${order.id})"><i
                                             class="fas fa-eye"></i></button>
-                                    <button class="btn-action btn-delete" title="Xóa"
-                                            onclick="deleteOrder(${order.id})"><i
-                                            class="fas fa-trash-alt"></i></button>
+
                                 </td>
                             </tr>
                         </c:forEach>
@@ -244,19 +242,6 @@
                     </div>
                 </div>
             </div>
-        </div>
-    </div>
-</div>
-
-<div id="delete-confirm-modal" class="modal" style="display: none;">
-    <div class="modal-content">
-        <span class="close-modal">&times;</span>
-        <h2>Xác nhận xóa</h2>
-        <p>Bạn có chắc chắn muốn xóa đơn hàng <strong id="customer-name-to-delete">#1052</strong> không?</p>
-        <p>Hành động này không thể hoàn tác.</p>
-        <div class="confirm-actions">
-            <button id="btn-cancel-delete" class="btn-secondary">Hủy bỏ</button>
-            <button id="btn-confirm-delete" class="btn-danger">Xác nhận Xóa</button>
         </div>
     </div>
 </div>
@@ -517,53 +502,7 @@
         });
     });
 
-    let orderIdToDelete = null;
 
-    function deleteOrder(orderId) {
-        orderIdToDelete = orderId;
-        document.getElementById('customer-name-to-delete').textContent = '#' + orderId;
-        document.getElementById('delete-confirm-modal').style.display = 'flex';
-    }
-
-    function closeDeleteModal() {
-        document.getElementById('delete-confirm-modal').style.display = 'none';
-        orderIdToDelete = null;
-    }
-
-    function confirmDeleteOrder() {
-        if (!orderIdToDelete) {
-            alert('Lỗi: Không có mã đơn hàng');
-            return;
-        }
-
-        fetch('${pageContext.request.contextPath}/admin/delete-order', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded',
-            },
-            body: 'orderId=' + orderIdToDelete
-        })
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert('Xóa đơn hàng thành công!');
-                    closeDeleteModal();
-                    location.reload();
-                } else {
-                    alert(data.message || 'Lỗi xóa đơn hàng');
-                }
-            })
-            .catch(err => {
-                console.error(err);
-                alert('Lỗi kết nối server');
-            });
-    }
-
-    document.addEventListener('DOMContentLoaded', function () {
-        document.getElementById('btn-cancel-delete').addEventListener('click', closeDeleteModal);
-        document.getElementById('btn-confirm-delete').addEventListener('click', confirmDeleteOrder);
-        document.querySelector('#delete-confirm-modal .close-modal').addEventListener('click', closeDeleteModal);
-    });
 </script>
 </body>
 </html>
