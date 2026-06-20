@@ -40,11 +40,18 @@ public class OrderSignatureDataBuilder {
      //build chuỗi canonical để hash và hiển thị cho user ký
     public static String build(Order order, List<SignableItem> items) {
         StringBuilder sb = new StringBuilder();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String createdAtStr = order.getCreatedAt() != null ? order.getCreatedAt().format(formatter) : "NONE";
+
         sb.append("ORDER_CODE=").append(order.getOrderCode()).append("\n");
+        sb.append("CREATED_AT=").append(createdAtStr).append("\n");
+        sb.append("USER_ID=").append(order.getUserId()).append("\n");
+        sb.append("KEY_ID=").append(order.getKeyId()).append("\n");
         sb.append("NAME=").append(nullSafe(order.getCustomerFullname())).append("\n");
         sb.append("PHONE=").append(nullSafe(order.getCustomerPhone())).append("\n");
         sb.append("EMAIL=").append(nullSafe(order.getCustomerEmail())).append("\n");
         sb.append("ADDRESS=").append(nullSafe(order.getShippingAddress())).append("\n");
+        sb.append("NOTE=").append(nullSafe(order.getCustomerNote())).append("\n");
         sb.append("SUBTOTAL=").append(formatAmount(order.getSubtotalAmount())).append("\n");
         sb.append("SHIPPING=").append(formatAmount(order.getShippingFee())).append("\n");
         sb.append("DISCOUNT=").append(formatAmount(order.getDiscountAmount())).append("\n");

@@ -52,7 +52,9 @@ public class OrderSignatureVerifier {
             return false;
         }
         String publicKey = keyDao.getPublicKeyById(order.getKeyId());
-        if (publicKey == null || publicKey.isBlank()) {
+        Integer keyOwnerId = keyDao.getUserIdByKeyId(order.getKeyId());
+        
+        if (publicKey == null || publicKey.isBlank() || keyOwnerId == null || !keyOwnerId.equals(order.getUserId())) {
             orderDao.updateSignatureStatus(orderId, "invalid");
             orderDao.updateOrderStatus(orderId, "Cần xác minh");
             return false;

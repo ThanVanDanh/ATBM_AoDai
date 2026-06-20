@@ -234,12 +234,13 @@ public class CheckoutController extends HttpServlet {
 
         String orderCode = "ORD" + System.currentTimeMillis();
         order.setOrderCode(orderCode);
+        order.setCreatedAt(java.time.LocalDateTime.now().withNano(0));
 
         try {
+            order.setKeyId(keyId);
             String signedOrderData = OrderSignatureDataBuilder.build(order, signableItems);
             String orderHash = SignatureUtil.sha256Hex(signedOrderData);
 
-            order.setKeyId(keyId);
             order.setOrderHash(orderHash);
             order.setSignedOrderData(signedOrderData);
 

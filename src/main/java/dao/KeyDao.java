@@ -64,4 +64,25 @@ public class KeyDao extends BaseDao {
                         .orElse(null)
         );
     }
+
+    public Integer getUserIdByKeyId(int keyId) {
+        return get().withHandle(handle ->
+                handle.createQuery("SELECT user_id FROM user_keys WHERE id = :keyId")
+                        .bind("keyId", keyId)
+                        .mapTo(Integer.class)
+                        .findFirst()
+                        .orElse(null)
+        );
+    }
+
+    public boolean isKeyActive(int keyId) {
+        return get().withHandle(handle ->
+                handle.createQuery("SELECT status FROM user_keys WHERE id = :keyId")
+                        .bind("keyId", keyId)
+                        .mapTo(String.class)
+                        .findFirst()
+                        .map(status -> "active".equalsIgnoreCase(status))
+                        .orElse(false)
+        );
+    }
 }
