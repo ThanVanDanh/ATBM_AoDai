@@ -64,6 +64,12 @@ public class KeyRegistrationController extends HttpServlet {
 
             String publicKeyPem = jsonObject.get("publicKey").getAsString();
 
+            String validationError = KeyService.validatePublicKeyPem(publicKeyPem);
+            if (validationError != null) {
+                out.write("{\"success\": false, \"message\": \"Khóa không hợp lệ: " + escapeJson(validationError) + "\"}");
+                return;
+            }
+
             boolean isSaved = keyService.registerUserKey(userId, publicKeyPem);
 
             if (isSaved) {
@@ -74,8 +80,16 @@ public class KeyRegistrationController extends HttpServlet {
 
         } catch (Exception e) {
             e.printStackTrace();
-            out.write("{\"success\": false, \"message\": \"Lỗi hệ thống: " + e.getMessage() + "\"}");
+            out.write("{\"success\": false, \"message\": \"Lỗi hệ thống: " + escapeJson(e.getMessage()) + "\"}");
         }
     }
 
+    private String escapeJson(String value) {
+        if (value == null) return "";
+        return value
+                .replace("\\", "\\\\")
+                .replace("\"", "\\\"")
+                .replace("\n", "\\n")
+                .replace("\r", "\\r");
+    }
 }
