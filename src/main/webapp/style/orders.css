@@ -151,9 +151,65 @@
     color: var(--color-processing);
 }
 
-.status-badge.status-đã-hủy {
+.status-badge.status-đã-hủy,
+.status-badge.status-đã-huỷ {
     background-color: #f1f3f4;
     color: var(--color-canceled);
+}
+
+.status-badge.status-chờ-xử-lý {
+    background-color: #fff8e1;
+    color: #e65100;
+}
+
+.status-badge.status-đang-giao {
+    background-color: #e4f3ff;
+    color: var(--color-info);
+}
+
+.status-badge.status-cần-xác-minh {
+    background-color: #fce4ec;
+    color: #c62828;
+}
+
+.badge-sig {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-align: center;
+    white-space: nowrap;
+}
+
+.badge-sig.badge-valid {
+    background-color: #e8f5e9;
+    color: var(--color-success);
+}
+
+.badge-sig.badge-invalid {
+    background-color: #fce4ec;
+    color: #c62828;
+}
+
+.badge-sig.badge-missing {
+    background-color: #f1f3f4;
+    color: var(--color-canceled);
+}
+
+.sig-text-valid {
+    color: var(--color-success);
+    font-weight: 600;
+}
+
+.sig-text-invalid {
+    color: #c62828;
+    font-weight: 600;
+}
+
+.sig-text-missing {
+    color: var(--color-canceled);
+    font-weight: 600;
 }
 
 .btn-action.btn-view {
