@@ -28,7 +28,7 @@ public class OrderSignatureVerifier {
         for (OrderItem item : items) {
             signableItems.add(
                     new OrderSignatureDataBuilder.SignableItem(
-                            item.getSku(),
+                            item.getVariantSkuAtPurchase(),
                             item.getProductNameAtPurchase(),
                             item.getSizeAtPurchase(),
                             item.getColorAtPurchase(),

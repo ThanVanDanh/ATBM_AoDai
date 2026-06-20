@@ -37,7 +37,7 @@ public class SignatureUtil {
         return sig.verify(signatureBytes);
     }
 
-    private static PublicKey parsePemPublicKey(String pem) throws Exception {
+    public static PublicKey parsePemPublicKey(String pem) throws Exception {
         String stripped = pem
                 .replace("-----BEGIN PUBLIC KEY-----", "")
                 .replace("-----END PUBLIC KEY-----", "")

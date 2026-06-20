@@ -64,6 +64,13 @@ public class KeyRegistrationController extends HttpServlet {
 
             String publicKeyPem = jsonObject.get("publicKey").getAsString();
 
+            try {
+                util.SignatureUtil.parsePemPublicKey(publicKeyPem);
+            } catch (Exception ex) {
+                out.write("{\"success\": false, \"message\": \"Khóa công khai không đúng định dạng RSA. Vui lòng kiểm tra lại.\"}");
+                return;
+            }
+
             boolean isSaved = keyService.registerUserKey(userId, publicKeyPem);
 
             if (isSaved) {
