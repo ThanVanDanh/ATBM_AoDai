@@ -52,6 +52,28 @@
         URL.revokeObjectURL(url);
     }
 
+    function validatePublicKeyPem(raw) {
+        let text = raw.trim();
+        if (!text) return "Nội dung khóa trống.";
+        if (text.indexOf("-----BEGIN PRIVATE KEY-----") !== -1) {
+            return "Bạn đang dán PRIVATE KEY! Vui lòng dán PUBLIC KEY.";
+        }
+        if (text.indexOf("-----BEGIN PUBLIC KEY-----") === -1) {
+            return "Thiếu dòng mở đầu: -----BEGIN PUBLIC KEY-----";
+        }
+        if (text.indexOf("-----END PUBLIC KEY-----") === -1) {
+            return "Thiếu dòng kết thúc: -----END PUBLIC KEY-----";
+        }
+        var start = text.indexOf("-----BEGIN PUBLIC KEY-----") + "-----BEGIN PUBLIC KEY-----".length;
+        var end = text.indexOf("-----END PUBLIC KEY-----");
+        var body = text.substring(start, end).replace(/[\s\r\n]+/g, "");
+        if (!body) return "Nội dung Base64 của khóa trống.";
+        if (/[^A-Za-z0-9+/=]/.test(body)) {
+            return "Nội dung khóa chứa ký tự không hợp lệ. Chỉ cho phép ký tự Base64 (A-Z, a-z, 0-9, +, /, =).";
+        }
+        return null;
+    }
+
     async function registerPublicKey(publicKeyPem) {
         const response = await fetch("register-key", {
             method: "POST",
@@ -116,8 +138,9 @@
             return;
         }
 
-        if (!keyContent.includes("-----BEGIN PUBLIC KEY-----")) {
-            alert("Nội dung không hợp lệ! Khóa phải chứa dòng -----BEGIN PUBLIC KEY-----");
+        const error = validatePublicKeyPem(keyContent);
+        if (error) {
+            alert("Định dạng Public Key không hợp lệ!\n\n" + error + "\n\nVui lòng kiểm tra lại và dán đúng định dạng PEM:\n-----BEGIN PUBLIC KEY-----\nMIIBIjAN...\n-----END PUBLIC KEY-----");
             return;
         }
 
