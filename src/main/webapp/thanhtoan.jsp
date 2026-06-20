@@ -109,7 +109,10 @@
                     <h3>Phương thức thanh toán</h3>
 
                     <label class="radio-option">
-                        <input type="radio" name="paymentMethod" value="payoo" checked required>
+                        <input type="radio" name="paymentMethod" value="cod" checked required>Thanh toán khi nhận hàng
+                    </label>
+                    <label class="radio-option">
+                        <input type="radio" name="paymentMethod" value="payoo">
                         Thanh toán online qua Payoo (Thẻ ATM, VISA, Mastercard, v.v...)
                         <div class="payment-logos">
                             <img src="image/payoo-logo-jpg-inkythuatso.jpg" alt="Payoo" style="height: 15px;">
@@ -117,11 +120,6 @@
                             <i class="fab fa-cc-mastercard"></i>
                             <i class="fas fa-credit-card"></i>
                         </div>
-                    </label>
-
-                    <label class="radio-option">
-                        <input type="radio" name="paymentMethod" value="cod">
-                        Thanh toán khi nhận hàng
                     </label>
                 </div>
 

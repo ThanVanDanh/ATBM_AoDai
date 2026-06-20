@@ -9,7 +9,7 @@ main {
     flex-direction: row;
     gap: 40px;
     min-height: 400px;
-    margin-left: 180px;
+    /*margin-left: 180px;*/
 }
 
 .account-nav {
@@ -506,4 +506,8 @@ main {
     display: inline-flex;
     align-items: center;
     gap: 8px;
+}
+.order-history-table .table-classic th,
+.order-history-table .table-classic td {
+    text-align: center;
 }
