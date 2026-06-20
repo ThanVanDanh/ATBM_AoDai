@@ -93,7 +93,7 @@
                                         </c:when>
                                         <c:when test="${order.signatureStatus == 'invalid'}">
                                             <span class="status-badge badge-sig badge-invalid">
-                                                <i class="fas fa-times-circle"></i> Giả mạo
+                                                <i class="fas fa-times-circle"></i> Không hợp lệ
                                             </span>
                                         </c:when>
                                         <c:otherwise>
@@ -316,9 +316,9 @@
 
                     const sigStatusSpan = document.getElementById('modal-signature-status');
                     if (order.signatureStatus === 'valid') {
-                        sigStatusSpan.innerHTML = '<span class="sig-text-valid"><i class="fas fa-check-circle"></i> Hợp lệ (Toàn vẹn dữ liệu)</span>';
+                        sigStatusSpan.innerHTML = '<span class="sig-text-valid"><i class="fas fa-check-circle"></i> Hợp lệ </span>';
                     } else if (order.signatureStatus === 'invalid') {
-                        sigStatusSpan.innerHTML = '<span class="sig-text-invalid"><i class="fas fa-times-circle"></i> Giả mạo / Bị thay đổi (Cảnh báo)</span>';
+                        sigStatusSpan.innerHTML = '<span class="sig-text-invalid"><i class="fas fa-times-circle"></i> Chữ ký không khớp – Cần xác minh</span>';
                     } else {
                         sigStatusSpan.innerHTML = '<span class="sig-text-missing">Chưa ký chữ ký số</span>';
                     }

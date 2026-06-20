@@ -178,7 +178,7 @@ public class CheckoutController extends HttpServlet {
         order.setPaymentMethod(paymentMethod);
 
         double subtotal = cart.getTotalPrice();
-        double shippingFee = subtotal >= 300000 ? 0 : 30000;
+        double shippingFee = subtotal >= 1000000 ? 0 : 30000;
 
         model.voucher.Voucher voucher = (model.voucher.Voucher) session.getAttribute("appliedVoucher");
         double discountAmount = 0;
