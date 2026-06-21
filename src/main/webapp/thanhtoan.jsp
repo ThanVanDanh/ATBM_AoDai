@@ -58,14 +58,14 @@
                            name="fullName"
                            placeholder="Nhập họ và tên"
                            required
-                           value="${not empty sessionScope.account ? sessionScope.account.fullName : ''}">
+                           value="${not empty sessionScope.checkoutFormData.fullName ? sessionScope.checkoutFormData.fullName : sessionScope.account.fullName}">
 
                     <div class="input-with-icon">
                         <input type="tel"
                                name="phone"
                                placeholder="Nhập số điện thoại"
                                required
-                               value="${not empty sessionScope.account ? sessionScope.account.phone : ''}">
+                               value="${not empty sessionScope.checkoutFormData.phone ? sessionScope.checkoutFormData.phone : sessionScope.account.phone}">
                         <span class="flag-icon">🇻🇳</span>
                     </div>
 
@@ -73,24 +73,24 @@
                            name="email"
                            placeholder="Nhập email"
                            required
-                           value="${not empty sessionScope.account ? sessionScope.account.email : ''}">
+                           value="${not empty sessionScope.checkoutFormData.email ? sessionScope.checkoutFormData.email : sessionScope.account.email}">
 
                     <input type="text"
                            name="country"
-                           value="${not empty sessionScope.defaultAddress ? sessionScope.defaultAddress.country : 'Vietnam'}"
+                           value="${not empty sessionScope.checkoutFormData.country ? sessionScope.checkoutFormData.country : (not empty sessionScope.defaultAddress ? sessionScope.defaultAddress.country : 'Vietnam')}"
                            readonly>
 
                     <input type="text"
                            name="address"
                            placeholder="Địa chỉ, tên đường"
                            required
-                           value="${not empty sessionScope.defaultAddress ? sessionScope.defaultAddress.addressLine : ''}">
+                           value="${not empty sessionScope.checkoutFormData.address ? sessionScope.checkoutFormData.address : (not empty sessionScope.defaultAddress ? sessionScope.defaultAddress.addressLine : '')}">
 
                     <input type="text"
                            name="city"
                            placeholder="Tỉnh/TP, Quận/Huyện, Phường/Xã"
                            required
-                           value="${not empty sessionScope.defaultAddress ? sessionScope.defaultAddress.cityProvince : ''}">
+                           value="${not empty sessionScope.checkoutFormData.city ? sessionScope.checkoutFormData.city : (not empty sessionScope.defaultAddress ? sessionScope.defaultAddress.cityProvince : '')}">
                 </div>
 
                 <div class="spacer"></div>
@@ -109,10 +109,10 @@
                     <h3>Phương thức thanh toán</h3>
 
                     <label class="radio-option">
-                        <input type="radio" name="paymentMethod" value="cod" checked required>Thanh toán khi nhận hàng
+                        <input type="radio" name="paymentMethod" value="cod" ${empty sessionScope.checkoutFormData.paymentMethod or sessionScope.checkoutFormData.paymentMethod == 'cod' ? 'checked' : ''} required>Thanh toán khi nhận hàng
                     </label>
                     <label class="radio-option">
-                        <input type="radio" name="paymentMethod" value="payoo">
+                        <input type="radio" name="paymentMethod" value="payoo" ${sessionScope.checkoutFormData.paymentMethod == 'payoo' ? 'checked' : ''}>
                         Thanh toán online qua Payoo (Thẻ ATM, VISA, Mastercard, v.v...)
                         <div class="payment-logos">
                             <img src="image/payoo-logo-jpg-inkythuatso.jpg" alt="Payoo" style="height: 15px;">
@@ -126,8 +126,7 @@
                 <div class="spacer"></div>
 
                 <div class="card order-note">
-                    <input type="text" name="orderNote" placeholder="Ghi chú đơn hàng">
-                </div>
+                    <input type="text" name="orderNote" placeholder="Ghi chú đơn hàng" value="${not empty sessionScope.checkoutFormData.orderNote ? sessionScope.checkoutFormData.orderNote : ''}">                </div>
             </form>
         </div>
 
@@ -385,10 +384,21 @@
             return;
         }
 
+        const checkoutForm = document.getElementById("checkoutForm");
         const form = document.createElement("form");
         form.method = "post";
         form.action = "${pageContext.request.contextPath}/checkout/apply-voucher";
 
+        if (checkoutForm) {
+            const formData = new FormData(checkoutForm);
+            formData.forEach((value, key) => {
+                const field = document.createElement("input");
+                field.type = "hidden";
+                field.name = key;
+                field.value = value;
+                form.appendChild(field);
+            });
+        }
         const input = document.createElement("input");
         input.type = "hidden";
         input.name = "promoCode";

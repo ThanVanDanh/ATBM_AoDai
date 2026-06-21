@@ -235,6 +235,7 @@ public class CartController extends HttpServlet {
 
             if (cart != null) {
                 cart.updateQuantity(productId, sku, quantity);
+                session.setAttribute("cart", cart);
             }
             String referer = request.getHeader("Referer");
             response.sendRedirect(referer != null ? referer : request.getContextPath() + "/cart");
@@ -261,6 +262,8 @@ public class CartController extends HttpServlet {
 
                     cart.remove(productId, sku);
                     session.setAttribute("cart", cart);
+                    session.removeAttribute("appliedVoucher");
+                    session.removeAttribute("voucherError");
                     System.out.println(" Called cart.remove()");
                 } else {
                     System.out.println(" Cart is NULL in Session");
