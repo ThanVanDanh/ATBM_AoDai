@@ -14,6 +14,7 @@ import model.cart.CartItem;
 import model.order.Order;
 import model.user.Address;
 import model.user.User;
+import model.voucher.Voucher;
 import util.OrderSignatureDataBuilder;
 import util.SignatureUtil;
 
@@ -52,10 +53,23 @@ public class CheckoutController extends HttpServlet {
 
         Cart cart = (Cart) session.getAttribute("cart");
         if (cart == null || cart.getTotalQuantity() == 0) {
+            session.removeAttribute("appliedVoucher");
+            session.removeAttribute("voucherError");
             response.sendRedirect(request.getContextPath() + "/cart");
             return;
         }
 
+        Voucher currentVoucher = (model.voucher.Voucher) session.getAttribute("appliedVoucher");
+        if (currentVoucher != null) {
+            if (!currentVoucher.isActive()
+                    || cart.getTotalPrice() < currentVoucher.getMinOrderAmount()
+                    || currentVoucher.getCurrentUsage() >= currentVoucher.getMaxUsage()
+                    || currentVoucher.getValidFrom() != null && currentVoucher.getValidFrom().isAfter(java.time.LocalDateTime.now())
+                    || currentVoucher.getValidTo() != null && currentVoucher.getValidTo().isBefore(java.time.LocalDateTime.now())) {
+                session.removeAttribute("appliedVoucher");
+                session.setAttribute("voucherError", "Mã khuyến mãi đã được gỡ vì giỏ hàng đã thay đổi hoặc không còn đủ điều kiện.");
+            }
+        }
         try {
             List<model.voucher.Voucher> vouchers = voucherDao.getActiveVouchers();
             request.setAttribute("vouchers", vouchers);
@@ -182,7 +196,7 @@ public class CheckoutController extends HttpServlet {
         order.setPaymentMethod(paymentMethod);
 
         double subtotal = cart.getTotalPrice();
-        double shippingFee = subtotal >= 300000 ? 0 : 30000;
+        double shippingFee = subtotal >= 1000000 ? 0 : 30000;
 
         model.voucher.Voucher voucher = (model.voucher.Voucher) session.getAttribute("appliedVoucher");
         double discountAmount = 0;
