@@ -87,6 +87,8 @@ public class CheckoutController extends HttpServlet {
                         .orElse(addresses.get(0));
 
                 session.setAttribute("defaultAddress", defaultAddress);
+            } else {
+                session.removeAttribute("defaultAddress");
             }
         } catch (Exception e) {
             e.printStackTrace();
