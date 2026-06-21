@@ -1,5 +1,7 @@
 package dao;
 
+import java.util.Map;
+
 public class KeyDao extends BaseDao {
 
     public boolean registerNewKey(int userId, String publicKey) {
@@ -60,6 +62,37 @@ public class KeyDao extends BaseDao {
                 handle.createQuery("SELECT public_key FROM user_keys WHERE id = :keyId")
                         .bind("keyId", keyId)
                         .mapTo(String.class)
+                        .findFirst()
+                        .orElse(null)
+        );
+    }
+
+    public Integer getUserIdByKeyId(int keyId) {
+        return get().withHandle(handle ->
+                handle.createQuery("SELECT user_id FROM user_keys WHERE id = :keyId")
+                        .bind("keyId", keyId)
+                        .mapTo(Integer.class)
+                        .findFirst()
+                        .orElse(null)
+        );
+    }
+
+    public boolean isKeyActive(int keyId) {
+        return get().withHandle(handle ->
+                handle.createQuery("SELECT status FROM user_keys WHERE id = :keyId")
+                        .bind("keyId", keyId)
+                        .mapTo(String.class)
+                        .findFirst()
+                        .map(status -> "active".equalsIgnoreCase(status))
+                        .orElse(false)
+        );
+    }
+
+    public Map<String, Object> getKeyInfoById(int keyId) {
+        return get().withHandle(handle ->
+                handle.createQuery("SELECT public_key, status FROM user_keys WHERE id = :keyId")
+                        .bind("keyId", keyId)
+                        .mapToMap()
                         .findFirst()
                         .orElse(null)
         );

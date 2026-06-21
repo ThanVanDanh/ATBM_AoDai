@@ -24,7 +24,7 @@ public class OrderDao extends BaseDao {
                     "VALUES (:userId, :keyId, :orderCode, :customerFullname, :customerEmail, " +
                     ":customerPhone, :shippingAddress, :customerNote, :subtotalAmount, :shippingFee, " +
                     ":discountAmount, :totalAmount, :voucherId, :orderStatus, :paymentMethod, :paymentStatus, " +
-                    ":orderHash, :signedOrderData, :orderSignature, :signatureStatus, :signedAt, NOW())";
+                    ":orderHash, :signedOrderData, :orderSignature, :signatureStatus, :signedAt, :createdAt)";
 
             int orderId = handle.createUpdate(orderSql)
                     .bindBean(order)

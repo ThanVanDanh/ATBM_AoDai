@@ -239,8 +239,8 @@ body {
 }
 
 #order-modal .modal-content.large {
-    width: min(96vw, 1400px) !important;
-    max-width: 1000px !important;
+    width: 95vw !important;
+    max-width: 1500px !important;
     max-height: 90vh !important;
     overflow: hidden !important;
 }

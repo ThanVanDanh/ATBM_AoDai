@@ -13,38 +13,54 @@ public class OrderSignatureDataBuilder {
 
 
     public static class SignableItem {
+        private Integer variantId;
+        private String productCode;
         private String sku;
         private String name;
         private String size;
         private String color;
         private int quantity;
         private double price;
+        private double lineTotal;
 
-        public SignableItem(String sku, String name, String size, String color, int quantity, double price) {
+        public SignableItem(Integer variantId, String productCode, String sku, String name, String size, String color, int quantity, double price, double lineTotal) {
+            this.variantId = variantId;
+            this.productCode = productCode;
             this.sku = sku;
             this.name = name;
             this.size = size;
             this.color = color;
             this.quantity = quantity;
             this.price = price;
+            this.lineTotal = lineTotal;
         }
 
+        public Integer getVariantId() { return variantId; }
+        public String getProductCode() { return productCode; }
         public String getSku() { return sku; }
         public String getName() { return name; }
         public String getSize() { return size; }
         public String getColor() { return color; }
         public int getQuantity() { return quantity; }
         public double getPrice() { return price; }
+        public double getLineTotal() { return lineTotal; }
     }
 
      //build chuỗi canonical để hash và hiển thị cho user ký
     public static String build(Order order, List<SignableItem> items) {
         StringBuilder sb = new StringBuilder();
+        java.time.format.DateTimeFormatter formatter = java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        String createdAtStr = order.getCreatedAt() != null ? order.getCreatedAt().format(formatter) : "NONE";
+
         sb.append("ORDER_CODE=").append(order.getOrderCode()).append("\n");
+        sb.append("CREATED_AT=").append(createdAtStr).append("\n");
+        sb.append("USER_ID=").append(order.getUserId()).append("\n");
+        sb.append("KEY_ID=").append(order.getKeyId()).append("\n");
         sb.append("NAME=").append(nullSafe(order.getCustomerFullname())).append("\n");
         sb.append("PHONE=").append(nullSafe(order.getCustomerPhone())).append("\n");
         sb.append("EMAIL=").append(nullSafe(order.getCustomerEmail())).append("\n");
         sb.append("ADDRESS=").append(nullSafe(order.getShippingAddress())).append("\n");
+        sb.append("NOTE=").append(nullSafe(order.getCustomerNote())).append("\n");
         sb.append("SUBTOTAL=").append(formatAmount(order.getSubtotalAmount())).append("\n");
         sb.append("SHIPPING=").append(formatAmount(order.getShippingFee())).append("\n");
         sb.append("DISCOUNT=").append(formatAmount(order.getDiscountAmount())).append("\n");
@@ -56,7 +72,11 @@ public class OrderSignatureDataBuilder {
         //mỗi item ngăn cách bằng |
         for (int i = 0; i < items.size(); i++) {
             SignableItem item = items.get(i);
-            sb.append(nullSafe(item.getSku()))
+            sb.append(item.getVariantId() != null ? item.getVariantId() : 0)
+              .append(":")
+              .append(nullSafe(item.getProductCode()))
+              .append(":")
+              .append(nullSafe(item.getSku()))
               .append(":")
               .append(nullSafe(item.getName()))
               .append(":")
@@ -66,7 +86,9 @@ public class OrderSignatureDataBuilder {
               .append(":")
               .append(item.getQuantity())
               .append(":")
-              .append(formatAmount(item.getPrice()));
+              .append(formatAmount(item.getPrice()))
+              .append(":")
+              .append(formatAmount(item.getLineTotal()));
             if (i < items.size() - 1) sb.append("|");
         }
 
