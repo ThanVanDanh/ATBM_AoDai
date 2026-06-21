@@ -28,12 +28,15 @@ public class OrderSignatureVerifier {
         for (OrderItem item : items) {
             signableItems.add(
                     new OrderSignatureDataBuilder.SignableItem(
+                            item.getVariantId(),
+                            item.getProductCodeAtPurchase(),
                             item.getSku(),
                             item.getProductNameAtPurchase(),
                             item.getSizeAtPurchase(),
                             item.getColorAtPurchase(),
                             item.getQuantity(),
-                            item.getPriceAtPurchase()
+                            item.getPriceAtPurchase(),
+                            item.getLineTotalAtPurchase()
                     )
             );
         }
@@ -52,7 +55,9 @@ public class OrderSignatureVerifier {
             return false;
         }
         String publicKey = keyDao.getPublicKeyById(order.getKeyId());
-        if (publicKey == null || publicKey.isBlank()) {
+        Integer keyOwnerId = keyDao.getUserIdByKeyId(order.getKeyId());
+
+        if (publicKey == null || publicKey.isBlank() || keyOwnerId == null || !keyOwnerId.equals(order.getUserId())) {
             orderDao.updateSignatureStatus(orderId, "invalid");
             orderDao.updateOrderStatus(orderId, "Cần xác minh");
             return false;

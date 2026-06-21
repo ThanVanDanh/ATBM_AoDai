@@ -220,26 +220,34 @@ public class CheckoutController extends HttpServlet {
         for (CartItem item : items) {
             String color = orderDao.getVariantColorBySku(item.getSku());
             String productName = item.getProduct() != null ? item.getProduct().getNameProduct() : "";
+            String productCode = item.getProduct() != null ? item.getProduct().getProductCode() : "";
+            Integer variantId = orderDao.getVariantId(item.getSku());
+            double lineTotal = item.getQuantity() * item.getPrice();
+
             signableItems.add(
                     new OrderSignatureDataBuilder.SignableItem(
+                            variantId,
+                            productCode,
                             item.getSku(),
                             productName,
                             item.getSize(),
                             color,
                             item.getQuantity(),
-                            item.getPrice()
+                            item.getPrice(),
+                            lineTotal
                     )
             );
         }
 
         String orderCode = "ORD" + System.currentTimeMillis();
         order.setOrderCode(orderCode);
+        order.setKeyId(keyId);
+        order.setCreatedAt(java.time.LocalDateTime.now().withNano(0));
 
         try {
             String signedOrderData = OrderSignatureDataBuilder.build(order, signableItems);
             String orderHash = SignatureUtil.sha256Hex(signedOrderData);
 
-            order.setKeyId(keyId);
             order.setOrderHash(orderHash);
             order.setSignedOrderData(signedOrderData);
 

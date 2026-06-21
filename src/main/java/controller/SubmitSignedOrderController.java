@@ -75,12 +75,12 @@ public class SubmitSignedOrderController extends HttpServlet {
                 resp.getWriter().write("{\"success\":false,\"message\":\"Không tìm thấy khóa công khai của đơn hàng.\"}");
                 return;
             }
-            
+
             if ("revoked".equalsIgnoreCase((String) keyInfo.get("status"))) {
                 resp.getWriter().write("{\"success\":false,\"message\":\"Khóa dùng cho đơn hàng này đã bị báo mất/thu hồi. Vui lòng hủy đơn này và đặt lại bằng khóa mới.\"}");
                 return;
             }
-            
+
             String publicKey = (String) keyInfo.get("public_key");
 
             util.OrderSignatureVerifier verifier = new util.OrderSignatureVerifier();
