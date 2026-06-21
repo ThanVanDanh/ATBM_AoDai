@@ -69,10 +69,21 @@ public class SubmitSignedOrderController extends HttpServlet {
                 return;
             }
 
+            if (order.getKeyId() == null) {
+                resp.getWriter().write("{\"success\":false,\"message\":\"Đơn hàng này không có khóa xác thực đính kèm.\"}");
+                return;
+            }
+
             //lấy public key theo key_id đã gắn khi tạo đơn, không dùng active key hiện tại
             String publicKey = keyDao.getPublicKeyById(order.getKeyId());
             if (publicKey == null) {
                 resp.getWriter().write("{\"success\":false,\"message\":\"Không tìm thấy khóa công khai của đơn hàng.\"}");
+                return;
+            }
+
+            //check khóa active
+            if (!keyDao.isKeyActive(order.getKeyId())) {
+                resp.getWriter().write("{\"success\":false,\"message\":\"Khóa dùng để tạo đơn hàng này đã bị thu hồi. Không thể dùng khóa cũ để ký đơn hàng nữa.\"}");
                 return;
             }
 
