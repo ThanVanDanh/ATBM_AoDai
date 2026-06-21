@@ -18,7 +18,9 @@ import util.OrderSignatureDataBuilder;
 import util.SignatureUtil;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @WebServlet(name = "CheckoutController", urlPatterns = {"/checkout", "/checkout/apply-voucher"})
 public class CheckoutController extends HttpServlet {
@@ -262,6 +264,7 @@ public class CheckoutController extends HttpServlet {
             session.removeAttribute("cart");
             session.removeAttribute("appliedVoucher");
             session.removeAttribute("voucherError");
+            session.removeAttribute("checkoutFormData");
 
             resp.getWriter().write("{\"success\":true}");
         } catch (Exception e) {
@@ -274,6 +277,17 @@ public class CheckoutController extends HttpServlet {
     private void handleApplyVoucher(HttpServletRequest req, HttpServletResponse resp)
             throws IOException, ServletException {
         HttpSession session = req.getSession();
+        Map<String, String> checkoutFormData = new HashMap<>();
+        checkoutFormData.put("fullName", trim(req.getParameter("fullName")));
+        checkoutFormData.put("phone", trim(req.getParameter("phone")));
+        checkoutFormData.put("email", trim(req.getParameter("email")));
+        checkoutFormData.put("country", trim(req.getParameter("country")));
+        checkoutFormData.put("address", trim(req.getParameter("address")));
+        checkoutFormData.put("city", trim(req.getParameter("city")));
+        checkoutFormData.put("paymentMethod", trim(req.getParameter("paymentMethod")));
+        checkoutFormData.put("orderNote", trim(req.getParameter("orderNote")));
+        session.setAttribute("checkoutFormData", checkoutFormData);
+
         String code = req.getParameter("promoCode");
         Cart cart = (Cart) session.getAttribute("cart");
         if (cart == null || cart.getTotalQuantity() == 0) {
