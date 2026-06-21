@@ -70,7 +70,7 @@ public class UpdateOrderStatusController extends HttpServlet {
             if ("invalid".equalsIgnoreCase(order.getSignatureStatus())
                     && !isAllowedStatusForInvalidSignature(newStatus)) {
                 response.put("success", false);
-                response.put("message", "Đơn hàng có chữ ký giả mạo, chỉ có thể chuyển sang Cần xác minh hoặc Đã hủy.");
+                response.put("message", "Đơn hàng có chữ ký cần xác minh, chỉ có thể chuyển sang Cần xác minh hoặc Đã hủy.");
                 resp.getWriter().write(gson.toJson(response));
                 return;
             }
@@ -90,7 +90,7 @@ public class UpdateOrderStatusController extends HttpServlet {
 
                 if (isBlank(cancelReason)) {
                     if ("invalid".equalsIgnoreCase(order.getSignatureStatus())) {
-                        cancelReason = "Đơn hàng có chữ ký giả mạo";
+                        cancelReason = "Đơn hàng có chữ ký cần xác minh";
                     } else {
                         cancelReason = "Admin hủy đơn";
                     }
