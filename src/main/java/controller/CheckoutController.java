@@ -220,14 +220,21 @@ public class CheckoutController extends HttpServlet {
         for (CartItem item : items) {
             String color = orderDao.getVariantColorBySku(item.getSku());
             String productName = item.getProduct() != null ? item.getProduct().getNameProduct() : "";
+            String productCode = item.getProduct() != null ? item.getProduct().getProductCode() : "";
+            Integer variantId = orderDao.getVariantId(item.getSku());
+            double lineTotal = item.getQuantity() * item.getPrice();
+
             signableItems.add(
                     new OrderSignatureDataBuilder.SignableItem(
+                            variantId,
+                            productCode,
                             item.getSku(),
                             productName,
                             item.getSize(),
                             color,
                             item.getQuantity(),
-                            item.getPrice()
+                            item.getPrice(),
+                            lineTotal
                     )
             );
         }

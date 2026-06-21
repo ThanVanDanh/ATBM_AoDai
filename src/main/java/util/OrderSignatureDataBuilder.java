@@ -13,28 +13,37 @@ public class OrderSignatureDataBuilder {
 
 
     public static class SignableItem {
+        private Integer variantId;
+        private String productCode;
         private String sku;
         private String name;
         private String size;
         private String color;
         private int quantity;
         private double price;
+        private double lineTotal;
 
-        public SignableItem(String sku, String name, String size, String color, int quantity, double price) {
+        public SignableItem(Integer variantId, String productCode, String sku, String name, String size, String color, int quantity, double price, double lineTotal) {
+            this.variantId = variantId;
+            this.productCode = productCode;
             this.sku = sku;
             this.name = name;
             this.size = size;
             this.color = color;
             this.quantity = quantity;
             this.price = price;
+            this.lineTotal = lineTotal;
         }
 
+        public Integer getVariantId() { return variantId; }
+        public String getProductCode() { return productCode; }
         public String getSku() { return sku; }
         public String getName() { return name; }
         public String getSize() { return size; }
         public String getColor() { return color; }
         public int getQuantity() { return quantity; }
         public double getPrice() { return price; }
+        public double getLineTotal() { return lineTotal; }
     }
 
      //build chuỗi canonical để hash và hiển thị cho user ký
@@ -63,7 +72,11 @@ public class OrderSignatureDataBuilder {
         //mỗi item ngăn cách bằng |
         for (int i = 0; i < items.size(); i++) {
             SignableItem item = items.get(i);
-            sb.append(nullSafe(item.getSku()))
+            sb.append(item.getVariantId() != null ? item.getVariantId() : 0)
+              .append(":")
+              .append(nullSafe(item.getProductCode()))
+              .append(":")
+              .append(nullSafe(item.getSku()))
               .append(":")
               .append(nullSafe(item.getName()))
               .append(":")
@@ -73,7 +86,9 @@ public class OrderSignatureDataBuilder {
               .append(":")
               .append(item.getQuantity())
               .append(":")
-              .append(formatAmount(item.getPrice()));
+              .append(formatAmount(item.getPrice()))
+              .append(":")
+              .append(formatAmount(item.getLineTotal()));
             if (i < items.size() - 1) sb.append("|");
         }
 

@@ -28,12 +28,15 @@ public class OrderSignatureVerifier {
         for (OrderItem item : items) {
             signableItems.add(
                     new OrderSignatureDataBuilder.SignableItem(
+                            item.getVariantId(),
+                            item.getProductCodeAtPurchase(),
                             item.getSku(),
                             item.getProductNameAtPurchase(),
                             item.getSizeAtPurchase(),
                             item.getColorAtPurchase(),
                             item.getQuantity(),
-                            item.getPriceAtPurchase()
+                            item.getPriceAtPurchase(),
+                            item.getLineTotalAtPurchase()
                     )
             );
         }
