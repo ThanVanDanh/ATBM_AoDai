@@ -93,7 +93,7 @@
                                         </c:when>
                                         <c:when test="${order.signatureStatus == 'invalid'}">
                                             <span class="badge-sig badge-invalid">
-                                                <i class="fas fa-times-circle"></i> Giả mạo
+                                                <i class="fas fa-times-circle"></i> Cần xác minh
                                             </span>
                                         </c:when>
                                         <c:otherwise>
@@ -305,7 +305,7 @@
                     if (order.signatureStatus === 'valid') {
                         sigStatusSpan.innerHTML = '<span class="sig-text-valid"><i class="fas fa-check-circle"></i> Hợp lệ (Toàn vẹn dữ liệu)</span>';
                     } else if (order.signatureStatus === 'invalid') {
-                        sigStatusSpan.innerHTML = '<span class="sig-text-invalid"><i class="fas fa-times-circle"></i> Giả mạo / Bị thay đổi (Cảnh báo)</span>';
+                        sigStatusSpan.innerHTML = '<span class="sig-text-invalid"><i class="fas fa-times-circle"></i> Dữ liệu đã bị thay đổi</span>';
                     } else {
                         sigStatusSpan.innerHTML = '<span class="sig-text-missing">Chưa ký chữ ký số</span>';
                     }

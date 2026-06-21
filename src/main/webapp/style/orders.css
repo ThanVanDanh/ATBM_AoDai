@@ -403,6 +403,11 @@
     animation: slide-down 0.3s ease-out;
 }
 
+.modal-content.large {
+    max-width: 1200px;
+    width: 90%;
+}
+
 .close-modal {
     color: #aaa;
     float: right;
